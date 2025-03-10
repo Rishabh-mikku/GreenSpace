@@ -64,9 +64,9 @@ class ImageCapture : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_image_capture)
+        setContentView(R.layout.activity_main_window)
 
-        imageView = findViewById(R.id.imageView)
+        imageView = findViewById(R.id.scannerFrame)
 
         checkAndRequestPermissions()
 
