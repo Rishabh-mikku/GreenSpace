@@ -1,6 +1,7 @@
 package com.example.greenspace
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -9,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,26 +67,26 @@ class ImageCapture : AppCompatActivity() {
         setContentView(R.layout.activity_image_capture)
 
         imageView = findViewById(R.id.imageView)
-        val btnCapture = findViewById<Button>(R.id.btnCapture)
-        val btnUpload = findViewById<Button>(R.id.btnUpload)
 
         checkAndRequestPermissions()
 
-        btnCapture.setOnClickListener {
-            if (checkPermissions()) {
-                takePicture()
-            } else {
-                checkAndRequestPermissions()
-            }
+        // Set click listener on ImageView to show selection popup
+        imageView.setOnClickListener {
+            showImageSourceDialog()
         }
+    }
 
-        btnUpload.setOnClickListener {
-            if (checkPermissions()) {
-                galleryLauncher.launch("image/*")
-            } else {
-                checkAndRequestPermissions()
+    private fun showImageSourceDialog() {
+        val options = arrayOf("Capture from Camera", "Select from Gallery")
+        AlertDialog.Builder(this)
+            .setTitle("Choose Image Source")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> if (checkPermissions()) takePicture() else checkAndRequestPermissions()
+                    1 -> if (checkPermissions()) galleryLauncher.launch("image/*") else checkAndRequestPermissions()
+                }
             }
-        }
+            .show()
     }
 
     private fun checkAndRequestPermissions() {
@@ -202,7 +202,7 @@ class ImageCapture : AppCompatActivity() {
             }
 
             val compressedBitmap = compressImage(bitmap)
-            imageView.setImageBitmap(compressedBitmap)
+            imageView.setImageBitmap(compressedBitmap) // Display selected/captured image
             saveImageToStorage(compressedBitmap)
         } catch (e: Exception) {
             e.printStackTrace()

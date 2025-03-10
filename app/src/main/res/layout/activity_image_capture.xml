@@ -6,24 +6,15 @@
     android:gravity="center"
     android:padding="16dp">
 
+    <!-- Single ImageView for both capturing & displaying images -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:scaleType="centerCrop"
-        android:background="@android:color/darker_gray"/>
-
-    <Button
-        android:id="@+id/btnCapture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Capture Image"
-        android:layout_marginTop="16dp"/>
-
-    <Button
-        android:id="@+id/btnUpload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Upload Image"
-        android:layout_marginTop="8dp"/>
+        android:background="@android:color/darker_gray"
+        android:src="@drawable/camera"
+        android:contentDescription="Capture or Upload Image"
+        android:clickable="true"
+        android:focusable="true"/>
 </LinearLayout>
