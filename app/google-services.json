@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "573923425585",
+    "project_id": "greenspace0910-66b95",
+    "storage_bucket": "greenspace0910-66b95.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573923425585:android:92f5fdf279a25dd7f78410",
+        "android_client_info": {
+          "package_name": "com.example.greenspace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBzf6fSIaHTBDGvF7GOTZrx6hv8s41J-A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
