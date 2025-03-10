@@ -1,0 +1,11 @@
+[33mcommit 47a3aa225b159f7b668f8206bdce7ef598e965a7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Rishabh-mikku <mikkurishabh94@gmail.com>
+Date:   Mon Mar 10 16:34:59 2025 +0530
+
+    Modified code to use single image view for camera capture
+
+[33mcommit 324050b37246595c905f226f423f8b09f0cb0b4e[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: Rishabh-mikku <mikkurishabh94@gmail.com>
+Date:   Mon Mar 10 03:11:57 2025 +0530
+
+    Initial Commit - Created Image Capture for capturing and uploading images from gallery
