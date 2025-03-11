@@ -2,6 +2,7 @@ package com.example.greenspace
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -10,6 +11,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +28,7 @@ import java.util.*
 
 class ImageCapture : AppCompatActivity() {
     private lateinit var imageView: ImageView
+    private lateinit var profileBtn : ImageButton
     private lateinit var currentPhotoPath: String
     private var photoURI: Uri? = null
 
@@ -73,6 +77,13 @@ class ImageCapture : AppCompatActivity() {
         // Set click listener on ImageView to show selection popup
         imageView.setOnClickListener {
             showImageSourceDialog()
+        }
+
+        profileBtn = findViewById(R.id.btnProfile)
+
+        // Set click listener on Profile Button to show Profile of user
+        profileBtn.setOnClickListener {
+            startActivity(Intent(this, ProfileInfo::class.java))
         }
     }
 
