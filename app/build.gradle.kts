@@ -47,7 +47,12 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.support.annotations)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.firebase.bom)
+    implementation(libs.firebase.analytics)
+    implementation (libs.play.services.auth)
+    implementation (libs.glide)
 }
