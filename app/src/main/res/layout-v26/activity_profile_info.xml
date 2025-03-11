@@ -148,13 +148,12 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/button_green"
             app:cornerRadius="25dp"
-            app:icon="@drawable/ic_logout"
+            android:icon="@drawable/ic_logout"
             app:iconPadding="8dp"
-            app:iconTint="@color/white"
+            android:iconTint="@color/white"
             android:gravity="center"
             android:padding="10dp"
             android:text="Logout"
-            android:onClick="onLogoutClick"
             android:textColor="@color/white"
             android:textSize="18sp"/>
 

@@ -1,12 +1,34 @@
 package com.example.greenspace
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.material.button.MaterialButton
+import com.google.firebase.auth.FirebaseAuth
 
 class ProfileInfo : AppCompatActivity() {
+
+    private lateinit var profilePic : ImageView
+    private lateinit var tvEmail : TextView
+    private lateinit var tvUsername : TextView
+    private lateinit var logoutBtn : MaterialButton
+    private lateinit var mGoogleSignInClient : GoogleSignInClient
+    private val auth by lazy {
+        FirebaseAuth.getInstance()
+    }
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -15,6 +37,34 @@ class ProfileInfo : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        tvEmail = findViewById(R.id.email)
+        tvUsername = findViewById(R.id.username)
+        tvEmail.text = "${SharedPreference.getEmail(this)}"
+        tvUsername.text = "${SharedPreference.getUsername(this)}"
+        profilePic = findViewById(R.id.profile_image)
+        val profilePicUrl = SharedPreference.getProfilePic(this)
+        Glide.with(this)
+            .load(profilePicUrl)
+            .placeholder(R.drawable.profile_placeholder)
+            .into(profilePic)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("573923425585-535umccnvqrhujvq3cteetlul8akaol2.apps.googleusercontent.com")
+            .requestEmail()
+            .build()
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        logoutBtn = findViewById(R.id.logout_button)
+        logoutBtn.setOnClickListener {
+            mGoogleSignInClient.signOut()
+                .addOnCompleteListener {
+                    val intent = Intent(this, LoginPage::class.java)
+                    Toast.makeText(this, "Logging Out !!!", Toast.LENGTH_SHORT)
+                        .show()
+                    startActivity(intent)
+                    finish()
+                }
         }
     }
 }
