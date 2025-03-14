@@ -1,5 +1,6 @@
 package com.example.greenspace
 
+import S3Uploader
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
@@ -9,79 +10,43 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ImageCapture : AppCompatActivity() {
     private lateinit var imageView: ImageView
-    private lateinit var profileBtn : ImageButton
-    private lateinit var currentPhotoPath: String
-    private var photoURI: Uri? = null
+    private lateinit var profileBtn: ImageButton
 
-    // Permission launcher
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (!allGranted) {
-            Toast.makeText(this, "All permissions are required for full functionality!", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    // Camera Capture Launcher
-    private val cameraLauncher = registerForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        photoURI?.let { uri ->
-            if (success) {
-                processImageUri(uri)
-            } else {
-                Toast.makeText(this, "Failed to capture image", Toast.LENGTH_SHORT).show()
-            }
-        } ?: Toast.makeText(this, "No image URI available", Toast.LENGTH_SHORT).show()
-    }
-
-    // Gallery Upload Launcher
-    private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            processImageUri(uri)
-        } else {
-            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show()
-        }
-    }
+    // Initialize S3Uploader
+    private lateinit var s3Uploader: S3Uploader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_window)
 
         imageView = findViewById(R.id.scannerFrame)
+        profileBtn = findViewById(R.id.btnProfile)
+        s3Uploader = S3Uploader(this)
 
         checkAndRequestPermissions()
 
-        // Set click listener on ImageView to show selection popup
         imageView.setOnClickListener {
             showImageSourceDialog()
         }
 
-        profileBtn = findViewById(R.id.btnProfile)
-
-        // Set click listener on Profile Button to show Profile of user
         profileBtn.setOnClickListener {
             startActivity(Intent(this, ProfileInfo::class.java))
         }
@@ -93,17 +58,77 @@ class ImageCapture : AppCompatActivity() {
             .setTitle("Choose Image Source")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> if (checkPermissions()) takePicture() else checkAndRequestPermissions()
-                    1 -> if (checkPermissions()) galleryLauncher.launch("image/*") else checkAndRequestPermissions()
+                    0 -> cameraLauncher.launch(null)
+                    1 -> galleryLauncher.launch("image/*")
                 }
             }
             .show()
     }
 
+    private fun processImage(bitmap: Bitmap) {
+        try {
+            val compressedBitmap = compressImage(bitmap)
+            imageView.setImageBitmap(compressedBitmap)
+            uploadImageToS3(compressedBitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun processImageUri(uri: Uri) {
+        try {
+            val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                @Suppress("DEPRECATION")
+                MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            } else {
+                val source = ImageDecoder.createSource(contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            }
+            processImage(bitmap)  // Call the updated function
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun compressImage(bitmap: Bitmap): Bitmap {
+        val maxSize = 1024
+        val width: Int
+        val height: Int
+        val ratio = bitmap.width.toFloat() / bitmap.height.toFloat()
+        if (ratio > 1) {
+            width = maxSize
+            height = (width / ratio).toInt()
+        } else {
+            height = maxSize
+            width = (height * ratio).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, width, height, true)
+    }
+
+    private fun uploadImageToS3(bitmap: Bitmap) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+                    val imageName = "img_${timeStamp}.jpg"
+
+                    val stream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+                    val inputStream: InputStream = stream.toByteArray().inputStream()
+
+                    s3Uploader.uploadImage(inputStream, imageName)
+                }
+                Toast.makeText(this@ImageCapture, "✅ Upload started!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@ImageCapture, "❌ Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun checkAndRequestPermissions() {
-        val permissions = mutableListOf(
-            Manifest.permission.CAMERA
-        )
+        val permissions = mutableListOf(Manifest.permission.CAMERA)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -120,104 +145,23 @@ class ImageCapture : AppCompatActivity() {
         }
     }
 
-    private fun checkPermissions(): Boolean {
-        val permissions = mutableListOf(
-            Manifest.permission.CAMERA
-        )
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        } else {
-            permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
-        }
-
-        return permissions.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions.values.any { !it }) {
+            Toast.makeText(this, "All permissions are required!", Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun takePicture() {
-        try {
-            val photoFile = createImageFile()
-            photoURI = FileProvider.getUriForFile(
-                this,
-                "${applicationContext.packageName}.provider",
-                photoFile
-            )
-            photoURI?.let { uri ->
-                cameraLauncher.launch(uri)
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error creating image file", Toast.LENGTH_SHORT).show()
-        }
+    private val cameraLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        bitmap?.let { processImage(it) }
     }
 
-    private fun createImageFile(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_",
-            ".jpg",
-            storageDir
-        ).apply {
-            currentPhotoPath = absolutePath
-        }
-    }
-
-    private fun compressImage(bitmap: Bitmap): Bitmap {
-        val maxSize = 1024
-        var width = bitmap.width
-        var height = bitmap.height
-
-        val bitmapRatio = width.toFloat() / height.toFloat()
-        if (bitmapRatio > 1) {
-            width = maxSize
-            height = (width / bitmapRatio).toInt()
-        } else {
-            height = maxSize
-            width = (height * bitmapRatio).toInt()
-        }
-
-        return Bitmap.createScaledBitmap(bitmap, width, height, true)
-    }
-
-    private fun saveImageToStorage(bitmap: Bitmap) {
-        try {
-            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val imageFileName = "JPEG_${timeStamp}.jpg"
-            val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val imageFile = File(storageDir, imageFileName)
-
-            ByteArrayOutputStream().use { stream ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
-                FileOutputStream(imageFile).use { fos ->
-                    fos.write(stream.toByteArray())
-                }
-            }
-            Toast.makeText(this, "Image saved successfully", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun processImageUri(uri: Uri) {
-        try {
-            val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                @Suppress("DEPRECATION")
-                MediaStore.Images.Media.getBitmap(contentResolver, uri)
-            } else {
-                val source = ImageDecoder.createSource(contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
-            }
-
-            val compressedBitmap = compressImage(bitmap)
-            imageView.setImageBitmap(compressedBitmap) // Display selected/captured image
-            saveImageToStorage(compressedBitmap)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
-        }
+    private val galleryLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { processImageUri(it) }
     }
 }

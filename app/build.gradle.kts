@@ -55,4 +55,6 @@ dependencies {
     implementation (libs.play.services.auth)
     implementation(libs.firebase.analytics)
     implementation (libs.glide)
+    implementation ("com.amazonaws:aws-android-sdk-s3:2.22.+")
+    implementation ("com.amazonaws:aws-android-sdk-core:2.22.+")
 }
