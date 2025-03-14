@@ -2,6 +2,7 @@ import android.content.Context
 import android.widget.Toast
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.auth.CognitoCachingCredentialsProvider
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
 import com.amazonaws.services.s3.AmazonS3Client
@@ -15,14 +16,19 @@ import java.util.*
 
 class S3Uploader(private val context: Context) {
 
-    private val ACCESS_KEY = "AKIA4KXZOD4DLZD2HT77"
-    private val SECRET_KEY = "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"
     private val BUCKET_NAME = "greenspace-images"
-    private val REGION = "us-east-1"
+    private val IDENTITY_POOL_ID = "us-east-1:521ff514-cbe0-4791-a818-7510a4b2c9c7"
+
+    private val credentialsProvider: CognitoCachingCredentialsProvider by lazy {
+        CognitoCachingCredentialsProvider(
+            context,
+            IDENTITY_POOL_ID,
+            Regions.US_EAST_1
+        )
+    }
 
     private val s3Client: AmazonS3Client by lazy {
-        val credentials: AWSCredentials = BasicAWSCredentials(ACCESS_KEY, SECRET_KEY)
-        AmazonS3Client(credentials, Region.getRegion(Regions.fromName(REGION)))
+        AmazonS3Client(credentialsProvider)
     }
 
     private val transferUtility: TransferUtility by lazy {

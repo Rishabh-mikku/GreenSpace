@@ -110,6 +110,7 @@ class ImageCapture : AppCompatActivity() {
     private fun uploadImageToS3(bitmap: Bitmap) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
+                Toast.makeText(this@ImageCapture, "✅ Upload started!", Toast.LENGTH_SHORT).show()
                 withContext(Dispatchers.IO) {
                     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
                     val imageName = "img_${timeStamp}.jpg"
@@ -120,7 +121,6 @@ class ImageCapture : AppCompatActivity() {
 
                     s3Uploader.uploadImage(inputStream, imageName)
                 }
-                Toast.makeText(this@ImageCapture, "✅ Upload started!", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(this@ImageCapture, "❌ Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
