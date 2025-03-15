@@ -26,6 +26,7 @@ import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.greenspace.plantnetapi.ImageCropper
 
 class ImageCapture : AppCompatActivity() {
     private lateinit var imageView: ImageView
@@ -102,28 +103,39 @@ class ImageCapture : AppCompatActivity() {
                 Toast.makeText(this@ImageCapture, loadingMessage, Toast.LENGTH_SHORT).show()
                 Log.d("PlantNet", loadingMessage)
 
-                val result = withContext(Dispatchers.IO) {
-                    plantNetUploader.identifyPlant(listOf(imageUri))
+                val bitmap = withContext(Dispatchers.IO) {
+                    ImageCropper.uriToBitmap(this@ImageCapture, imageUri)
                 }
 
-                if (result != null && result.results.isNotEmpty()) {
-                    val firstResult = result.results.first()
-                    val scientificName = firstResult.species.scientificNameWithoutAuthor
-                    val commonNames = firstResult.species.commonNames
+                if (bitmap != null) {
+                    val croppedBitmap = ImageCropper.cropCenterSquare(bitmap)  // Apply cropping
+                    val croppedUri = ImageCropper.saveCroppedBitmapToCache(this@ImageCapture, croppedBitmap)
 
-                    val commonNameText = if (commonNames.isNotEmpty()) {
-                        commonNames.joinToString(", ")
-                    } else {
-                        "Unknown"
+                    val result = withContext(Dispatchers.IO) {
+                        plantNetUploader.identifyPlant(listOf(croppedUri))  // ✅ Upload cropped image
                     }
 
-                    val message = "Plant: $scientificName\nCommon Name(s): $commonNameText"
-                    Toast.makeText(this@ImageCapture, message, Toast.LENGTH_LONG).show()
-                    Log.d("PlantNet", message)
+                    if (result != null && result.results.isNotEmpty()) {
+                        val firstResult = result.results.first()
+                        val scientificName = firstResult.species.scientificNameWithoutAuthor
+                        val commonNames = firstResult.species.commonNames
+
+                        val commonNameText = if (commonNames.isNotEmpty()) {
+                            commonNames.joinToString(", ")
+                        } else {
+                            "Unknown"
+                        }
+
+                        val message = "Plant: $scientificName\nCommon Name(s): $commonNameText"
+                        Toast.makeText(this@ImageCapture, message, Toast.LENGTH_LONG).show()
+                        Log.d("PlantNet", message)
+                    } else {
+                        val noPlantMessage = "No plant identified"
+                        Toast.makeText(this@ImageCapture, noPlantMessage, Toast.LENGTH_LONG).show()
+                        Log.d("PlantNet", noPlantMessage)
+                    }
                 } else {
-                    val noPlantMessage = "No plant identified"
-                    Toast.makeText(this@ImageCapture, noPlantMessage, Toast.LENGTH_LONG).show()
-                    Log.d("PlantNet", noPlantMessage)
+                    Toast.makeText(this@ImageCapture, "Failed to process image", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
                 val errorMessage = "PlantNet API failed: ${e.localizedMessage}"
@@ -132,6 +144,7 @@ class ImageCapture : AppCompatActivity() {
             }
         }
     }
+
 
     private fun checkAndRequestPermissions() {
         val permissions = mutableListOf(Manifest.permission.CAMERA)
