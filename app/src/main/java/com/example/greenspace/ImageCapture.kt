@@ -7,6 +7,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,12 +19,14 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.media3.common.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,6 +37,7 @@ class ImageCapture : AppCompatActivity() {
     private lateinit var profileBtn: ImageButton
     private lateinit var s3Uploader: S3Uploader
     private lateinit var plantNetUploader: PlantNetUploader
+    private lateinit var imageUri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +48,7 @@ class ImageCapture : AppCompatActivity() {
         s3Uploader = S3Uploader(this)
         plantNetUploader = PlantNetUploader(this)
 
+        setupImageUri()
         checkAndRequestPermissions()
 
         imageView.setOnClickListener {
@@ -60,7 +66,7 @@ class ImageCapture : AppCompatActivity() {
             .setTitle("Choose Image Source")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> cameraLauncher.launch(null)
+                    0 -> cameraLauncher.launch(imageUri)
                     1 -> galleryLauncher.launch("image/*")
                 }
             }
@@ -68,8 +74,9 @@ class ImageCapture : AppCompatActivity() {
     }
 
     private fun processImageUri(uri: Uri) {
-        imageView.setImageURI(uri)
-        uploadToS3AndPlantNet(uri)
+        val resizedUri = resizeAndCompressImage(uri) ?: uri  // Use resized image if successful
+        imageView.setImageURI(resizedUri)
+        uploadToS3AndPlantNet(resizedUri)
     }
 
     private fun uploadToS3AndPlantNet(imageUri: Uri) {
@@ -97,54 +104,34 @@ class ImageCapture : AppCompatActivity() {
 
     @SuppressLint("UnsafeOptInUsageError")
     private fun uploadToPlantNet(imageUri: Uri) {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                val loadingMessage = "Identifying plant..."
-                Toast.makeText(this@ImageCapture, loadingMessage, Toast.LENGTH_SHORT).show()
-                Log.d("PlantNet", loadingMessage)
-
-                val bitmap = withContext(Dispatchers.IO) {
-                    ImageCropper.uriToBitmap(this@ImageCapture, imageUri)
-                }
-
-                if (bitmap != null) {
-                    val croppedBitmap = ImageCropper.cropCenterSquare(bitmap)  // Apply cropping
-                    val croppedUri = ImageCropper.saveCroppedBitmapToCache(this@ImageCapture, croppedBitmap)
+        ImageCropper.cropDetectedObject(this, imageUri) { croppedUri ->
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    val finalUri = croppedUri ?: imageUri
+                    Toast.makeText(this@ImageCapture, "Identifying plant...", Toast.LENGTH_SHORT).show()
+                    Log.d("PlantNet", "Identifying plant...")
 
                     val result = withContext(Dispatchers.IO) {
-                        plantNetUploader.identifyPlant(listOf(croppedUri))  // ✅ Upload cropped image
+                        plantNetUploader.identifyPlant(listOf(finalUri))
                     }
 
                     if (result != null && result.results.isNotEmpty()) {
                         val firstResult = result.results.first()
                         val scientificName = firstResult.species.scientificNameWithoutAuthor
-                        val commonNames = firstResult.species.commonNames
+                        val commonNames = firstResult.species.commonNames.joinToString(", ")
 
-                        val commonNameText = if (commonNames.isNotEmpty()) {
-                            commonNames.joinToString(", ")
-                        } else {
-                            "Unknown"
-                        }
-
-                        val message = "Plant: $scientificName\nCommon Name(s): $commonNameText"
-                        Toast.makeText(this@ImageCapture, message, Toast.LENGTH_LONG).show()
-                        Log.d("PlantNet", message)
+                        Toast.makeText(this@ImageCapture, "Plant: $scientificName\nCommon Name(s): $commonNames", Toast.LENGTH_LONG).show()
+                        Log.d("PlantNet", "Identified: $scientificName, Common Names: $commonNames")
                     } else {
-                        val noPlantMessage = "No plant identified"
-                        Toast.makeText(this@ImageCapture, noPlantMessage, Toast.LENGTH_LONG).show()
-                        Log.d("PlantNet", noPlantMessage)
+                        Toast.makeText(this@ImageCapture, "No plant identified", Toast.LENGTH_LONG).show()
                     }
-                } else {
-                    Toast.makeText(this@ImageCapture, "Failed to process image", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this@ImageCapture, "PlantNet API failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    Log.e("PlantNet", "Error: ${e.localizedMessage}", e)
                 }
-            } catch (e: Exception) {
-                val errorMessage = "PlantNet API failed: ${e.localizedMessage}"
-                Toast.makeText(this@ImageCapture, errorMessage, Toast.LENGTH_LONG).show()
-                Log.e("PlantNet", errorMessage, e)
             }
         }
     }
-
 
     private fun checkAndRequestPermissions() {
         val permissions = mutableListOf(Manifest.permission.CAMERA)
@@ -173,11 +160,10 @@ class ImageCapture : AppCompatActivity() {
     }
 
     private val cameraLauncher = registerForActivityResult(
-        ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        bitmap?.let {
-            val uri = saveBitmapToCache(it)  // Convert Bitmap to Uri
-            processImageUri(uri)
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            processImageUri(imageUri)
         }
     }
 
@@ -187,9 +173,36 @@ class ImageCapture : AppCompatActivity() {
         uri?.let { processImageUri(it) }
     }
 
-    private fun saveBitmapToCache(bitmap: android.graphics.Bitmap): Uri {
+    private fun setupImageUri() {
+        val file = File(cacheDir, "captured_image.jpg")
+        file.parentFile?.mkdirs()
+        imageUri = FileProvider.getUriForFile(this, "com.example.greenspace.provider", file)
+    }
+
+    private fun resizeAndCompressImage(uri: Uri): Uri? {
+        return try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val originalBitmap = BitmapFactory.decodeStream(inputStream)
+
+            val maxSize = 1024
+            val resizedBitmap = resizeBitmap(originalBitmap, maxSize)
+            saveBitmapToCache(resizedBitmap)
+        } catch (e: Exception) {
+            Log.e("ImageProcessing", "Error resizing image: ${e.message}", e)
+            null
+        }
+    }
+
+    private fun saveBitmapToCache(bitmap: Bitmap): Uri {
         val file = File(cacheDir, "temp_image.jpg")
-        file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, it) }
-        return Uri.fromFile(file)
+        FileOutputStream(file).use {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, it)
+        }
+        return FileProvider.getUriForFile(this, "com.example.greenspace.provider", file)
+    }
+
+    private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
+        val scale = maxSize.toFloat() / maxOf(bitmap.width, bitmap.height)
+        return Bitmap.createScaledBitmap(bitmap, (bitmap.width * scale).toInt(), (bitmap.height * scale).toInt(), true)
     }
 }
