@@ -1,12 +1,12 @@
 package com.example.greenspace
 
 import S3Uploader
+import com.example.greenspace.plantnetapi.PlantNetUploader
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,11 +17,12 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.media3.common.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,9 +30,8 @@ import java.util.*
 class ImageCapture : AppCompatActivity() {
     private lateinit var imageView: ImageView
     private lateinit var profileBtn: ImageButton
-
-    // Initialize S3Uploader
     private lateinit var s3Uploader: S3Uploader
+    private lateinit var plantNetUploader: PlantNetUploader
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +40,7 @@ class ImageCapture : AppCompatActivity() {
         imageView = findViewById(R.id.scannerFrame)
         profileBtn = findViewById(R.id.btnProfile)
         s3Uploader = S3Uploader(this)
+        plantNetUploader = PlantNetUploader(this)
 
         checkAndRequestPermissions()
 
@@ -65,64 +66,69 @@ class ImageCapture : AppCompatActivity() {
             .show()
     }
 
-    private fun processImage(bitmap: Bitmap) {
-        try {
-            val compressedBitmap = compressImage(bitmap)
-            imageView.setImageBitmap(compressedBitmap)
-            uploadImageToS3(compressedBitmap)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun processImageUri(uri: Uri) {
-        try {
-            val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                @Suppress("DEPRECATION")
-                MediaStore.Images.Media.getBitmap(contentResolver, uri)
-            } else {
-                val source = ImageDecoder.createSource(contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
-            }
-            processImage(bitmap)  // Call the updated function
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show()
-        }
+        imageView.setImageURI(uri)
+        uploadToS3AndPlantNet(uri)
     }
 
-    private fun compressImage(bitmap: Bitmap): Bitmap {
-        val maxSize = 1024
-        val width: Int
-        val height: Int
-        val ratio = bitmap.width.toFloat() / bitmap.height.toFloat()
-        if (ratio > 1) {
-            width = maxSize
-            height = (width / ratio).toInt()
-        } else {
-            height = maxSize
-            width = (height * ratio).toInt()
-        }
-        return Bitmap.createScaledBitmap(bitmap, width, height, true)
-    }
-
-    private fun uploadImageToS3(bitmap: Bitmap) {
+    private fun uploadToS3AndPlantNet(imageUri: Uri) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                Toast.makeText(this@ImageCapture, "✅ Upload started!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ImageCapture, "Uploading to S3...", Toast.LENGTH_SHORT).show()
+
                 withContext(Dispatchers.IO) {
                     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
                     val imageName = "img_${timeStamp}.jpg"
 
-                    val stream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream)
-                    val inputStream: InputStream = stream.toByteArray().inputStream()
-
+                    val inputStream: InputStream = contentResolver.openInputStream(imageUri)!!
                     s3Uploader.uploadImage(inputStream, imageName)
                 }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ImageCapture, "S3 Upload Complete", Toast.LENGTH_SHORT).show()
+                    uploadToPlantNet(imageUri)
+                }
             } catch (e: Exception) {
-                Toast.makeText(this@ImageCapture, "❌ Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@ImageCapture, "S3 Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    @SuppressLint("UnsafeOptInUsageError")
+    private fun uploadToPlantNet(imageUri: Uri) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val loadingMessage = "Identifying plant..."
+                Toast.makeText(this@ImageCapture, loadingMessage, Toast.LENGTH_SHORT).show()
+                Log.d("PlantNet", loadingMessage)
+
+                val result = withContext(Dispatchers.IO) {
+                    plantNetUploader.identifyPlant(listOf(imageUri))
+                }
+
+                if (result != null && result.results.isNotEmpty()) {
+                    val firstResult = result.results.first()
+                    val scientificName = firstResult.species.scientificNameWithoutAuthor
+                    val commonNames = firstResult.species.commonNames
+
+                    val commonNameText = if (commonNames.isNotEmpty()) {
+                        commonNames.joinToString(", ")
+                    } else {
+                        "Unknown"
+                    }
+
+                    val message = "Plant: $scientificName\nCommon Name(s): $commonNameText"
+                    Toast.makeText(this@ImageCapture, message, Toast.LENGTH_LONG).show()
+                    Log.d("PlantNet", message)
+                } else {
+                    val noPlantMessage = "No plant identified"
+                    Toast.makeText(this@ImageCapture, noPlantMessage, Toast.LENGTH_LONG).show()
+                    Log.d("PlantNet", noPlantMessage)
+                }
+            } catch (e: Exception) {
+                val errorMessage = "PlantNet API failed: ${e.localizedMessage}"
+                Toast.makeText(this@ImageCapture, errorMessage, Toast.LENGTH_LONG).show()
+                Log.e("PlantNet", errorMessage, e)
             }
         }
     }
@@ -156,12 +162,21 @@ class ImageCapture : AppCompatActivity() {
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
-        bitmap?.let { processImage(it) }
+        bitmap?.let {
+            val uri = saveBitmapToCache(it)  // Convert Bitmap to Uri
+            processImageUri(uri)
+        }
     }
 
     private val galleryLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { processImageUri(it) }
+    }
+
+    private fun saveBitmapToCache(bitmap: android.graphics.Bitmap): Uri {
+        val file = File(cacheDir, "temp_image.jpg")
+        file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, it) }
+        return Uri.fromFile(file)
     }
 }
