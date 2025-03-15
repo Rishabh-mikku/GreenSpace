@@ -1,52 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
     android:background="@color/white"
+    android:padding="20dp"
     tools:context=".PlantInfo">
 
-    <!-- Captured Image -->
-    <ImageView
-        android:id="@+id/plantImageView"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:scaleType="centerInside"
-        android:adjustViewBounds="true"
-        android:src="@drawable/plant_image_placeholder"
-        android:contentDescription="Plant Image"/>
-
-    <!-- Scientific Name -->
-    <TextView
-        android:id="@+id/tvScientificName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scientific Name"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:padding="4dp"/>
-
-    <!-- Common Names -->
-    <TextView
-        android:id="@+id/tvCommonNames"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Common Names"
-        android:textSize="18sp"
-        android:textColor="@color/dark_gray"
-        android:padding="4dp"
-        android:layout_marginBottom="16dp"/>
-
-    <!-- Go Back Button -->
-    <Button
-        android:id="@+id/btnBack"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go Back"
-        android:backgroundTint="@color/green"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Captured Image -->
+        <ImageView
+            android:id="@+id/plantImageView"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="@drawable/plant_image_placeholder"
+            android:contentDescription="Plant Image"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Scientific Name -->
+        <TextView
+            android:id="@+id/tvScientificName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scientific Name"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:padding="4dp"/>
+
+        <!-- Common Names -->
+        <TextView
+            android:id="@+id/tvCommonNames"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Common Names"
+            android:textSize="18sp"
+            android:textColor="@color/dark_gray"
+            android:padding="4dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Family Name -->
+        <TextView
+            android:id="@+id/tvFamily"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Family: Unknown"
+            android:textSize="18sp"
+            android:textColor="@color/dark_gray"
+            android:padding="4dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Confidence Score -->
+        <TextView
+            android:id="@+id/tvConfidence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confidence: 0%"
+            android:textSize="18sp"
+            android:textColor="@color/dark_gray"
+            android:padding="4dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Wikipedia Link -->
+        <Button
+            android:id="@+id/btnWiki"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View on Wikipedia"
+            android:visibility="gone" />
+
+        <!-- Go Back Button -->
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go Back"
+            android:backgroundTint="@color/green"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

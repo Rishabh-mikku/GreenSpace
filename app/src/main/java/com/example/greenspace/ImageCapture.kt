@@ -118,14 +118,23 @@ class ImageCapture : AppCompatActivity() {
                         val firstResult = result.results.first()
                         val scientificName = firstResult.species.scientificNameWithoutAuthor
                         val commonNames = firstResult.species.commonNames.joinToString(", ")
+                        val family = firstResult.species.family.scientificNameWithoutAuthor
+                        val confidence = (firstResult.score * 100).toFloat()
+                        val wikiLink = firstResult.species.wikipedia?.en ?: "Not available"
 
                         // 🔹 Start the PlantInfo Activity with the LOCAL FILE PATH
                         val intent = Intent(this@ImageCapture, PlantInfo::class.java).apply {
                             putExtra("image_path", localFilePath)  // Pass file path instead of URI
                             putExtra("scientific_name", scientificName)
                             putExtra("common_names", commonNames)
+                            putExtra("family", family)
+                            putExtra("confidence", confidence)
+                            putExtra("wiki_link", wikiLink)
                         }
                         startActivity(intent)
+                        Log.d("PlantInfo", "Received confidence: $confidence")
+                        Log.d("PlantInfo", "Wikipedia link: $wikiLink")
+                        Log.d("PlantNetResponse", result.toString())
                     } else {
                         Toast.makeText(this@ImageCapture, "No plant identified", Toast.LENGTH_LONG).show()
                     }

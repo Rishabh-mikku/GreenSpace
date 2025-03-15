@@ -21,12 +21,23 @@ data class PlantNetResponse(
 )
 
 data class PlantIdentificationResult(
+    val score: Float,           // Confidence Score
     val species: Species
 )
 
 data class Species(
     val scientificNameWithoutAuthor: String,
-    val commonNames: List<String>
+    val commonNames: List<String>,
+    val family: Family,                // Plant Family
+    val wikipedia: Wikipedia            // Wikipedia Details
+)
+
+data class Wikipedia(
+    val en: String?                     // English Wikipedia link
+)
+
+data class Family(
+    val scientificNameWithoutAuthor: String
 )
 
 object RetrofitInstance {
