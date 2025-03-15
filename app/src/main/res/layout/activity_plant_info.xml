@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/white"
+    tools:context=".PlantInfo">
+
+    <!-- Captured Image -->
+    <ImageView
+        android:id="@+id/plantImageView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:src="@drawable/plant_image_placeholder"
+        android:contentDescription="Plant Image"/>
+
+    <!-- Scientific Name -->
+    <TextView
+        android:id="@+id/tvScientificName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scientific Name"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:padding="4dp"/>
+
+    <!-- Common Names -->
+    <TextView
+        android:id="@+id/tvCommonNames"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Common Names"
+        android:textSize="18sp"
+        android:textColor="@color/dark_gray"
+        android:padding="4dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Go Back Button -->
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go Back"
+        android:backgroundTint="@color/green"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

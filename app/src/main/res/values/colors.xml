@@ -6,4 +6,6 @@
     <color name="dark_green">#2E7D32</color>
     <color name="text_primary">#1B5E20</color>
     <color name="button_green">#43A047</color>
+    <color name="dark_gray">#4A4A4A</color>
+    <color name="green">#2E7D32</color>
 </resources>

@@ -84,6 +84,8 @@ class ImageCapture : AppCompatActivity() {
             try {
                 Toast.makeText(this@ImageCapture, "Uploading to S3...", Toast.LENGTH_SHORT).show()
 
+                val localFilePath = saveImageLocally(imageUri)  // Save the image locally before upload
+
                 withContext(Dispatchers.IO) {
                     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
                     val imageName = "img_${timeStamp}.jpg"
@@ -94,7 +96,7 @@ class ImageCapture : AppCompatActivity() {
 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@ImageCapture, "S3 Upload Complete", Toast.LENGTH_SHORT).show()
-                    uploadToPlantNet(imageUri)
+                    uploadToPlantNet(imageUri, localFilePath)  // Pass the local path to PlantInfo.kt
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@ImageCapture, "S3 Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
@@ -103,14 +105,11 @@ class ImageCapture : AppCompatActivity() {
     }
 
     @SuppressLint("UnsafeOptInUsageError")
-    private fun uploadToPlantNet(imageUri: Uri) {
+    private fun uploadToPlantNet(imageUri: Uri, localFilePath: String) {
         ImageCropper.cropDetectedObject(this, imageUri) { croppedUri ->
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     val finalUri = croppedUri ?: imageUri
-                    Toast.makeText(this@ImageCapture, "Identifying plant...", Toast.LENGTH_SHORT).show()
-                    Log.d("PlantNet", "Identifying plant...")
-
                     val result = withContext(Dispatchers.IO) {
                         plantNetUploader.identifyPlant(listOf(finalUri))
                     }
@@ -120,14 +119,18 @@ class ImageCapture : AppCompatActivity() {
                         val scientificName = firstResult.species.scientificNameWithoutAuthor
                         val commonNames = firstResult.species.commonNames.joinToString(", ")
 
-                        Toast.makeText(this@ImageCapture, "Plant: $scientificName\nCommon Name(s): $commonNames", Toast.LENGTH_LONG).show()
-                        Log.d("PlantNet", "Identified: $scientificName, Common Names: $commonNames")
+                        // 🔹 Start the PlantInfo Activity with the LOCAL FILE PATH
+                        val intent = Intent(this@ImageCapture, PlantInfo::class.java).apply {
+                            putExtra("image_path", localFilePath)  // Pass file path instead of URI
+                            putExtra("scientific_name", scientificName)
+                            putExtra("common_names", commonNames)
+                        }
+                        startActivity(intent)
                     } else {
                         Toast.makeText(this@ImageCapture, "No plant identified", Toast.LENGTH_LONG).show()
                     }
                 } catch (e: Exception) {
                     Toast.makeText(this@ImageCapture, "PlantNet API failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                    Log.e("PlantNet", "Error: ${e.localizedMessage}", e)
                 }
             }
         }
@@ -179,6 +182,7 @@ class ImageCapture : AppCompatActivity() {
         imageUri = FileProvider.getUriForFile(this, "com.example.greenspace.provider", file)
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
     private fun resizeAndCompressImage(uri: Uri): Uri? {
         return try {
             val inputStream = contentResolver.openInputStream(uri)
@@ -205,4 +209,17 @@ class ImageCapture : AppCompatActivity() {
         val scale = maxSize.toFloat() / maxOf(bitmap.width, bitmap.height)
         return Bitmap.createScaledBitmap(bitmap, (bitmap.width * scale).toInt(), (bitmap.height * scale).toInt(), true)
     }
+
+    private fun saveImageLocally(uri: Uri): String {
+        val file = File(cacheDir, "uploaded_image.jpg")
+        val inputStream = contentResolver.openInputStream(uri)
+        val outputStream = FileOutputStream(file)
+
+        inputStream?.copyTo(outputStream)
+        inputStream?.close()
+        outputStream.close()
+
+        return file.absolutePath  // Return the local file path
+    }
+
 }
