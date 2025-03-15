@@ -10,8 +10,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import org.w3c.dom.Text
 
 class PlantInfo : AppCompatActivity() {
     @SuppressLint("SetTextI18n", "MissingInflatedId")
@@ -22,43 +20,65 @@ class PlantInfo : AppCompatActivity() {
         val imageView: ImageView = findViewById(R.id.plantImageView)
         val scientificNameTextView: TextView = findViewById(R.id.tvScientificName)
         val commonNamesTextView: TextView = findViewById(R.id.tvCommonNames)
-        val backButton: Button = findViewById(R.id.btnBack)
         val familyTextView: TextView = findViewById(R.id.tvFamily)
         val confidenceTextView: TextView = findViewById(R.id.tvConfidence)
         val wikiButton: Button = findViewById(R.id.btnWiki)
+        val backButton: Button = findViewById(R.id.btnBack)
+        val noPlantTextView: TextView = findViewById(R.id.tvNoPlant)
 
-        // Get data from intent
-        val imagePath: String? = intent.getStringExtra("image_path")  // Get file path
         val scientificName: String? = intent.getStringExtra("scientific_name")
-        val commonNames: String? = intent.getStringExtra("common_names")
-        val family: String? = intent.getStringExtra("family")
-        val confidence: Float = intent.getFloatExtra("confidence", -1.0f) // Default to 0.0%
-        val wikiLink: String? = intent.getStringExtra("wiki_link")
+        val imagePath: String? = intent.getStringExtra("image_path")
 
-        // Load image from file path
-        if (!imagePath.isNullOrEmpty()) {
-            val bitmap = BitmapFactory.decodeFile(imagePath)
-            imageView.setImageBitmap(bitmap)  // Set the image correctly
-        }
-
-        scientificNameTextView.text = "Scientific Name: $scientificName"
-        commonNamesTextView.text = "Common Names: $commonNames"
-        familyTextView.text = "Family: ${family ?: "Not available"}"
-        confidenceTextView.text = if (confidence >= 0) {
-            "Confidence: ${"%.2f".format(confidence)}%"
-        } else {
-            "Confidence: Not available"
-        }
-        if (!wikiLink.isNullOrEmpty() && wikiLink != "Not available") {
-            wikiButton.visibility = View.VISIBLE  // Show button only if link is available
-            wikiButton.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wikiLink))
-                startActivity(intent)
+        if (scientificName == "No Plant Identified") {
+            // If confidence is below 15%, show "No Plant Identified"
+            // Load image from file path
+            if (!imagePath.isNullOrEmpty()) {
+                val bitmap = BitmapFactory.decodeFile(imagePath)
+                imageView.setImageBitmap(bitmap)
             }
+            noPlantTextView.text = "No Plant Identified"
+            scientificNameTextView.visibility = View.GONE
+            commonNamesTextView.visibility = View.GONE
+            familyTextView.visibility = View.GONE
+            confidenceTextView.visibility = View.GONE
+            wikiButton.visibility = View.GONE
         } else {
-            wikiButton.visibility = View.GONE  // Hide button if no link is available
+
+            // Get data from intent
+            val commonNames: String? = intent.getStringExtra("common_names")
+            val family: String? = intent.getStringExtra("family")
+            val confidence: Float = intent.getFloatExtra("confidence", -1.0f)
+            val wikiLink: String? = intent.getStringExtra("wiki_link")
+
+            // Load image from file path
+            if (!imagePath.isNullOrEmpty()) {
+                val bitmap = BitmapFactory.decodeFile(imagePath)
+                imageView.setImageBitmap(bitmap)
+            }
+
+            noPlantTextView.visibility = View.GONE
+            scientificNameTextView.text = "Scientific Name: $scientificName"
+            commonNamesTextView.text = "Common Names: $commonNames"
+            familyTextView.text = "Family: ${family ?: "Not available"}"
+            confidenceTextView.text = if (confidence >= 0) {
+                "Confidence: ${"%.2f".format(confidence)}%"
+            } else {
+                "Confidence: Not available"
+            }
+
+            // Show Wikipedia button only if link is available
+            if (!wikiLink.isNullOrEmpty() && wikiLink != "Not available") {
+                wikiButton.visibility = View.VISIBLE
+                wikiButton.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wikiLink))
+                    startActivity(intent)
+                }
+            } else {
+                wikiButton.visibility = View.GONE
+            }
         }
 
+        // Back button logic
         backButton.setOnClickListener {
             val intent = Intent(this, ImageCapture::class.java)
             startActivity(intent)

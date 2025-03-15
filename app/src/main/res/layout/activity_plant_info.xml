@@ -20,9 +20,18 @@
             android:layout_height="250dp"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
-            android:background="@drawable/plant_image_placeholder"
             android:contentDescription="Plant Image"
             android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tvNoPlant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Plant Identified"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:textColor="@color/dark_green"/>
 
         <!-- Scientific Name -->
         <TextView
