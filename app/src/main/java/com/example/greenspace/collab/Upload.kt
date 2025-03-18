@@ -56,7 +56,7 @@ class Upload : AppCompatActivity() {
         val awsUploader = AWSImageTipUploader(this)
         awsUploader.uploadImage(imageUri!!) { imageUrl ->
             if (imageUrl != null) {
-                awsUploader.saveTipToDynamoDB(FirebaseAuth.getInstance().uid!!, tipText, imageUrl)
+                awsUploader.saveTipToDynamoDB(tipText, imageUrl)
                 Toast.makeText(this, "Upload Successful!", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Upload Failed!", Toast.LENGTH_SHORT).show()

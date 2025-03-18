@@ -13,6 +13,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.amazonaws.services.s3.AmazonS3Client
+import com.example.greenspace.SharedPreference
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -64,19 +65,21 @@ class AWSImageTipUploader(private val context: Context) {
         })
     }
 
-    fun saveTipToDynamoDB(userId: String, tipText: String, imageUrl: String) {
+    fun saveTipToDynamoDB(tipText: String, imageUrl: String) {
         executor.execute {
             try {
                 val table = Table.loadTable(dynamoDBClient, "greenspace-tip-upload")
+                val username = SharedPreference.getUsername(context) ?: "Anonymous"
+                val userEmail = SharedPreference.getEmail(context) ?: "Anonymous"
+                val tipData = TipData(
+                    userEmail = userEmail,
+                    tipText = tipText,
+                    imageUrl = imageUrl,
+                    username = username
+                )
 
-                val item = Document()
-                item["tipId"] = Primitive(UUID.randomUUID().toString())
-                item["userId"] = Primitive(userId)
-                item["tipText"] = Primitive(tipText)
-                item["imageUrl"] = Primitive(imageUrl)
-                item["timestamp"] = Primitive(System.currentTimeMillis())
-
-                table.putItem(item) // ✅ Removed TableOperationConfig (NOT NEEDED)
+                val item = tipData.toDynamoDBDocument()
+                table.putItem(item)
                 Log.d("DynamoDB", "Tip saved successfully")
             } catch (e: Exception) {
                 Log.e("DynamoDB", "Error saving tip: ${e.localizedMessage}")

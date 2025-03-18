@@ -26,6 +26,7 @@
         android:text="📷 Select Image"
         android:textSize="16sp"
         android:background="@drawable/rounded_button"
+        android:foreground="?attr/selectableItemBackground"
         android:textColor="@android:color/white"
         android:padding="12dp"
         android:layout_marginBottom="8dp"/>
@@ -51,6 +52,7 @@
         android:text="🚀 Upload Tip &amp; Image"
         android:textSize="16sp"
         android:background="@drawable/rounded_button"
+        android:foreground="?attr/selectableItemBackground"
         android:textColor="@android:color/white"
         android:padding="12dp"/>
 </LinearLayout>
