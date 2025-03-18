@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven ("https://maven.amazonaws.com/")
+        maven ("https://sdk.amazonaws.com/maven/" )
     }
 }
 

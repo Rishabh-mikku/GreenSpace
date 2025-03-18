@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.media3.common.util.Log
+import com.example.greenspace.collab.Upload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +40,7 @@ class ImageCapture : AppCompatActivity() {
     private lateinit var s3Uploader: S3Uploader
     private lateinit var plantNetUploader: PlantNetUploader
     private lateinit var imageUri: Uri
+    private lateinit var collabBtn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +50,7 @@ class ImageCapture : AppCompatActivity() {
         profileBtn = findViewById(R.id.btnProfile)
         s3Uploader = S3Uploader(this)
         plantNetUploader = PlantNetUploader(this)
+        collabBtn = findViewById(R.id.btnAdd)
 
         setupImageUri()
         checkAndRequestPermissions()
@@ -57,6 +61,10 @@ class ImageCapture : AppCompatActivity() {
 
         profileBtn.setOnClickListener {
             startActivity(Intent(this, ProfileInfo::class.java))
+        }
+
+        collabBtn.setOnClickListener {
+            startActivity(Intent(this, Upload::class.java))
         }
     }
 
