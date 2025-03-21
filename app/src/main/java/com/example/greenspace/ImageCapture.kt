@@ -12,8 +12,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
@@ -24,6 +22,7 @@ import androidx.core.content.FileProvider
 import androidx.media3.common.util.Log
 import com.example.greenspace.collab.Upload
 import com.example.greenspace.mistralapi.ApiClient
+import com.example.greenspace.mistralapi.MistralRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,10 +32,9 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.greenspace.plantnetapi.ImageCropper
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
+import com.example.greenspace.mistralapi.Content
+import com.example.greenspace.mistralapi.MessageRequest
+
 
 class ImageCapture : AppCompatActivity() {
     private lateinit var imageView: ImageView
@@ -91,76 +89,79 @@ class ImageCapture : AppCompatActivity() {
         uploadToS3AndPlantRecognition(resizedUri)
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
     private fun uploadToS3AndPlantRecognition(imageUri: Uri) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 Toast.makeText(this@ImageCapture, "Uploading to S3...", Toast.LENGTH_SHORT).show()
 
-                val localFilePath = saveImageLocally(imageUri)  // Save the image locally before upload
-
-                val s3ImageUrl = withContext(Dispatchers.IO) {
+                val s3ImageUrl: String? = withContext(Dispatchers.IO) {
                     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
                     val imageName = "img_${timeStamp}.jpg"
 
-                    val inputStream: InputStream = contentResolver.openInputStream(imageUri)!!
-                    s3Uploader.uploadImage(inputStream, imageName)  // Upload to S3
-                }
+                    val inputStream: InputStream? = contentResolver.openInputStream(imageUri)
+                    if (inputStream == null) {
+                        Log.e("S3 Upload", "Failed to open input stream")
 
-                if (s3ImageUrl != null) {
+                    } else {
+                        s3Uploader.uploadImage(inputStream, imageName)  // ✅ Get the S3 URL
+                    }
+                }?.toString()
+
+                if (!s3ImageUrl.isNullOrEmpty()) {
+                    Log.d("S3 Upload", "Successfully uploaded: $s3ImageUrl")
                     Toast.makeText(this@ImageCapture, "S3 Upload Complete", Toast.LENGTH_SHORT).show()
-                    uploadToMistralAPI(imageUri, s3ImageUrl.toString())  // Call Mistral API
+                    uploadToMistralAPI(s3ImageUrl)  // ✅ Pass correct URL to Mistral API
                 } else {
+                    Log.e("S3 Upload", "S3 URL is null or empty")
                     Toast.makeText(this@ImageCapture, "S3 Upload Failed", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
+                Log.e("S3 Upload", "Exception: ${e.message}", e)
                 Toast.makeText(this@ImageCapture, "S3 Upload failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-
     @SuppressLint("UnsafeOptInUsageError")
-    private fun uploadToMistralAPI(imageUri: Uri, s3ImageUrl: String) {
-        CoroutineScope(Dispatchers.Main).launch {
+    private fun uploadToMistralAPI(s3ImageUrl: String) {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                val file = File(saveImageLocally(imageUri))
-                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                val imagePart = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                val request = MistralRequest(
+                    model = "pixtral-12b-2409",
+                    messages = listOf(
+                        MessageRequest(
+                            role = "user",
+                            content = listOf(
+                                Content(type = "text", text = "Identify this plant and provide its species, habitat, and conservation status."),
+                                Content(type = "image_url", image_url = s3ImageUrl)
+                            )
+                        )
+                    )
+                )
 
-                val response = withContext(Dispatchers.IO) {
-                    ApiClient.instance.identifyPlant(imagePart).execute()
-                }
+                val call = ApiClient.instance.getPlantInfo(request)
+                val response = call.execute()
 
-                if (response.isSuccessful && response.body() != null) {
-                    val plantResponse = response.body()!!
-                    Log.d("PlantInfo", "Raw Plant Response: $plantResponse")
-                    val intent = Intent(this@ImageCapture, PlantInfo::class.java).apply {
-                        putExtra("image_url", s3ImageUrl)  // Pass the S3 Image URL
-                        putExtra("identified_plant", plantResponse.identified_plant)
-                        putExtra("scientific_name", plantResponse.scientific_name ?: "Unknown")
-                        putExtra("common_name", plantResponse.common_name ?: "Unknown")
-                        putExtra("family", plantResponse.family ?: "Unknown")
-                        putExtra("habitat", plantResponse.habitat ?: "Unknown")
-                        putExtra("distribution", plantResponse.distribution?.joinToString(", ") ?: "Unknown")
-                        putExtra("wiki_link", plantResponse.image_url ?: "Not available")
+                if (response.isSuccessful) {
+                    val mistralResponse = response.body()
+                    val plantInfo = mistralResponse?.choices?.get(0)?.message?.content ?: "No response from AI"
+
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@ImageCapture, "Plant Info: $plantInfo", Toast.LENGTH_LONG).show()
+                        Log.d("PlantInfo", "Plant Info: $plantInfo")
                     }
-
-                    Log.d("PlantInfo", "Image URL: $s3ImageUrl")
-                    Log.d("PlantInfo", "Identified Plant: ${plantResponse.identified_plant}")
-                    Log.d("PlantInfo", "Scientific Name: ${plantResponse.scientific_name ?: "Unknown"}")
-                    Log.d("PlantInfo", "Common Name: ${plantResponse.common_name ?: "Unknown"}")
-                    Log.d("PlantInfo", "Family: ${plantResponse.family ?: "Unknown"}")
-                    Log.d("PlantInfo", "Habitat: ${plantResponse.habitat ?: "Unknown"}")
-                    Log.d("PlantInfo", "Distribution: ${plantResponse.distribution?.joinToString(", ") ?: "Unknown"}")
-                    Log.d("PlantInfo", "Wiki Link: ${plantResponse.image_url ?: "Not available"}")
-
-                    startActivity(intent)
                 } else {
-                    Toast.makeText(this@ImageCapture, "Plant recognition failed", Toast.LENGTH_LONG).show()
+                    Log.e("MistralAPI", "Error: ${response.errorBody()?.string()}")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@ImageCapture, "Mistral API Error", Toast.LENGTH_LONG).show()
+                    }
                 }
             } catch (e: Exception) {
-                Toast.makeText(this@ImageCapture, "API Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                Log.e("ImageCapture", "API Error: ", e)
+                Log.e("MistralAPI", "Exception: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@ImageCapture, "Mistral API failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

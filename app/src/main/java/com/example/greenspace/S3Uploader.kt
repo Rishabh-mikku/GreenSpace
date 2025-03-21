@@ -1,4 +1,5 @@
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.BasicAWSCredentials
@@ -40,23 +41,33 @@ class S3Uploader(private val context: Context) {
     }
 
     // 🔹 Updated: Upload Image from InputStream
-    suspend fun uploadImage(inputStream: InputStream, imageName: String) {
-        withContext(Dispatchers.IO) { // Run on background thread
+    suspend fun uploadImage(inputStream: InputStream, imageName: String): String? {
+        return withContext(Dispatchers.IO) {
             try {
                 val metadata = com.amazonaws.services.s3.model.ObjectMetadata().apply {
                     contentType = "image/jpeg"
                 }
 
+                // ✅ Upload Image
                 s3Client.putObject(BUCKET_NAME, imageName, inputStream, metadata)
 
+                // ✅ Construct the Public S3 URL
+                val s3Url = "https://$BUCKET_NAME.s3.amazonaws.com/$imageName"
+
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "✅ Upload Successful: $imageName", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "✅ Upload Successful: $s3Url", Toast.LENGTH_SHORT).show()
                 }
+
+                Log.d("S3 Upload", "Uploaded to: $s3Url") // Debug log
+                s3Url  // ✅ Return the URL
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "❌ Upload Failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
+                Log.e("S3 Upload", "Upload failed: ${e.message}", e)
+                null  // ✅ Return null if upload fails
             }
         }
     }
+
 }
