@@ -133,7 +133,37 @@ class ImageCapture : AppCompatActivity() {
                         MessageRequest(
                             role = "user",
                             content = listOf(
-                                Content(type = "text", text = "Identify this plant and provide its species, habitat, and conservation status."),
+                                Content(type = "text", text = """
+                                  Identify this plant, leaf, or flower from the image and provide only the requested details in the exact format below. Ensure responses are factual, concise, and free from extra details.  
+
+                                  Common Name:  
+                                  Scientific Name:  
+                                  Family:  
+                                  Native Habitat:  
+                                  Geographical Distribution (Countries/Regions):  
+                                  Physical Description:  
+                                  Growth Conditions:  
+                                    - Temperature: (e.g., 20-30°C, Prefers warm climates but can tolerate various temperatures)  
+                                    - Light:  
+                                    - Water:  
+                                    - Soil:  
+                                  Uses (Exactly 4):  
+                                    1.  
+                                    2.  
+                                    3.  
+                                    4.  
+                                  Interesting Facts (Exactly 4):  
+                                    1.  
+                                    2.  
+                                    3.  
+                                    4.  
+                                  Conservation Status:  
+
+                                  Steps to Grow in a Garden:  
+                                  (If the plant is "not suitable" for garden cultivation, respond with "Can't be grown in a garden.")  
+                                    
+                                  If the plant is unidentifiable, respond with "Plant Not Identified." 
+                            """.trimIndent()),
                                 Content(type = "image_url", image_url = s3ImageUrl)
                             )
                         )
@@ -145,16 +175,18 @@ class ImageCapture : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     val mistralResponse = response.body()
-                    val plantInfo = mistralResponse?.choices?.get(0)?.message?.content ?: "No response from AI"
+                    val plantInfo = mistralResponse?.choices?.get(0)?.message?.content ?: "Plant Not Identified"
 
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@ImageCapture, "Plant Info: $plantInfo", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ImageCapture, "Plant Info:\n$plantInfo", Toast.LENGTH_LONG).show()
                         Log.d("PlantInfo", "Plant Info: $plantInfo")
                     }
                 } else {
-                    Log.e("MistralAPI", "Error: ${response.errorBody()?.string()}")
+                    val errorMessage = response.errorBody()?.string() ?: "Unknown error"
+                    Log.e("MistralAPI", "Error: $errorMessage")
+
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@ImageCapture, "Mistral API Error", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@ImageCapture, "Mistral API Error: $errorMessage", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
@@ -165,6 +197,7 @@ class ImageCapture : AppCompatActivity() {
             }
         }
     }
+
 
 
     private fun checkAndRequestPermissions() {
