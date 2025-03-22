@@ -1,5 +1,6 @@
 package com.example.greenspace.screens
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,10 +24,11 @@ class TipAdapter(private val tips: List<TipData>) : RecyclerView.Adapter<TipAdap
         return TipViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: TipViewHolder, position: Int) {
         val tip = tips[position]
         holder.usernameTextView.text = tip.username
-        holder.tipTextView.text = tip.tipText
+        holder.tipTextView.text = "Tip: ${tip.tipText}"
         Glide.with(holder.itemView.context).load(tip.imageUrl).into(holder.tipImageView)
     }
 
