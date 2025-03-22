@@ -84,7 +84,7 @@
 
 
         <ImageButton
-            android:id="@+id/btnChat"
+            android:id="@+id/btnTipsImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

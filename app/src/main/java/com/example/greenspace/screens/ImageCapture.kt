@@ -43,6 +43,7 @@ class ImageCapture : AppCompatActivity() {
     private lateinit var plantNetUploader: PlantNetUploader
     private lateinit var imageUri: Uri
     private lateinit var collabBtn: ImageButton
+    private lateinit var tipsImageBtn: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +54,7 @@ class ImageCapture : AppCompatActivity() {
         s3Uploader = S3Uploader(this)
         plantNetUploader = PlantNetUploader(this)
         collabBtn = findViewById(R.id.btnAdd)
+        tipsImageBtn = findViewById(R.id.btnTipsImage)
 
         setupImageUri()
         checkAndRequestPermissions()
@@ -67,6 +69,10 @@ class ImageCapture : AppCompatActivity() {
 
         collabBtn.setOnClickListener {
             startActivity(Intent(this, UploadImageTip::class.java))
+        }
+
+        tipsImageBtn.setOnClickListener {
+            startActivity(Intent(this, ViewTipsActivity::class.java))
         }
     }
 
