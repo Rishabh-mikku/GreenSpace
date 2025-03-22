@@ -1,19 +1,16 @@
+package com.example.greenspace.S3Upload
+
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import com.amazonaws.auth.AWSCredentials
-import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.InputStream
-import java.text.SimpleDateFormat
-import java.util.*
 
 class S3Uploader(private val context: Context) {
 

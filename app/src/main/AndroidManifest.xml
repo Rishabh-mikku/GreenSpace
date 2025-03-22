@@ -34,12 +34,12 @@
         </activity>
 
         <activity
-            android:name=".ImageCapture"
+            android:name=".screens.ImageCapture"
             android:exported="true">
 
         </activity>
 
-        <activity android:name=".HomePage"
+        <activity android:name=".screens.HomePage"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,17 +47,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginPage"
+        <activity android:name=".screens.LoginPage"
             android:exported="true">
 
         </activity>
 
-        <activity android:name=".ProfileInfo"
+        <activity android:name=".screens.ProfileInfo"
             android:exported="true">
 
         </activity>
 
-        <activity android:name=".PlantInfo"
+        <activity android:name=".screens.PlantInfo"
             android:exported="true">
 
         </activity>

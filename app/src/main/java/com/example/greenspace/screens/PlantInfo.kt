@@ -1,4 +1,4 @@
-package com.example.greenspace
+package com.example.greenspace.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.greenspace.R
 
 class PlantInfo : AppCompatActivity() {
     @SuppressLint("SetTextI18n", "MissingInflatedId")

@@ -1,6 +1,6 @@
-package com.example.greenspace
+package com.example.greenspace.screens
 
-import S3Uploader
+import com.example.greenspace.S3Upload.S3Uploader
 import com.example.greenspace.plantnetapi.PlantNetUploader
 import android.Manifest
 import android.annotation.SuppressLint
@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.media3.common.util.Log
+import com.example.greenspace.R
 import com.example.greenspace.collab.Upload
 import com.example.greenspace.mistralapi.ApiClient
 import com.example.greenspace.mistralapi.MistralRequest

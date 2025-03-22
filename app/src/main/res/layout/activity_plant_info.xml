@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:padding="20dp"
-    tools:context=".PlantInfo">
+    tools:context=".screens.PlantInfo">
 
     <LinearLayout
         android:layout_width="match_parent"
