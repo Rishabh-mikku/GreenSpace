@@ -1,6 +1,8 @@
 package com.example.greenspace.screens
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -41,13 +43,18 @@ class PlantInfo : AppCompatActivity() {
             setCardDetails(R.id.commonNameCard, "Common Name", detailsMap["Common Name"])
             setCardDetails(R.id.familyCard, "Family", detailsMap["Family"])
             setCardDetails(R.id.nativeHabitatCard, "Native Habitat", detailsMap["Native Habitat"])
-            setCardDetails(R.id.geographicalDistributionCard, "Geographical Distribution", detailsMap["Geographical Distribution"])
+            setCardDetails(R.id.geographicalDistributionCard, "Geographical Distribution", detailsMap["Geographical Distribution (Countries/Regions)"])
             setCardDetails(R.id.physicalDescriptionCard, "Physical Description", detailsMap["Physical Description"])
-            setCardDetails(R.id.growthConditionsCard, "Growth Conditions", detailsMap["Growth Conditions"])
             setCardDetails(R.id.usesCard, "Uses", detailsMap["Uses"])
             setCardDetails(R.id.interestingFactsCard, "Interesting Facts", detailsMap["Interesting Facts"])
             setCardDetails(R.id.conservationStatusCard, "Conservation Status", detailsMap["Conservation Status"])
-            setCardDetails(R.id.gardenTipsCard, "Garden Tips", detailsMap["Steps to Grow in a Garden"])
+            setCardDetails(R.id.gardenTipsCard, "Steps to Grow in a Garden", detailsMap["Steps to Grow in a Garden"])
+
+            // Set individual Growth Condition details with Emojis 🌡️ ☀️ 💧 🌱
+            setCardDetails(R.id.tempCard, "Temperature 🌡️", detailsMap["Temperature"])
+            setCardDetails(R.id.lightCard, "Light ☀️", detailsMap["Light"])
+            setCardDetails(R.id.waterCard, "Water 💧", detailsMap["Water"])
+            setCardDetails(R.id.soilCard, "Soil 🌱", detailsMap["Soil"])
         }
     }
 
@@ -73,17 +80,32 @@ class PlantInfo : AppCompatActivity() {
      * Function to update a CardView's title and text dynamically
      */
     private fun setCardDetails(cardId: Int, title: String, detail: String?) {
-        val cardView = findViewById<View>(cardId)
-        cardView.findViewById<TextView>(R.id.tvTitle).text = title
-        cardView.findViewById<TextView>(R.id.tvDetail).text = detail ?: "Not Available"
+        val cardView = findViewById<View>(cardId) as? CardView
+        if (cardView == null) {
+            Log.e("PlantInfo", "⚠️ CardView with ID $cardId not found!")
+            return
+        }
 
-        // Apply padding and style dynamically
-        cardView.setBackgroundResource(R.drawable.rounded_card)
+        when (cardId) {
+            R.id.tempCard -> cardView.findViewById<TextView>(R.id.tvTemp)?.text = "$title: $detail 🌡️"
+            R.id.lightCard -> cardView.findViewById<TextView>(R.id.tvLight)?.text = "$title: $detail ☀️"
+            R.id.waterCard -> cardView.findViewById<TextView>(R.id.tvWater)?.text = "$title: $detail 💧"
+            R.id.soilCard -> cardView.findViewById<TextView>(R.id.tvSoil)?.text = "$title: $detail 🌱"
+            else -> {
+                val titleView = cardView.findViewById<TextView>(R.id.tvTitle)
+                val detailView = cardView.findViewById<TextView>(R.id.tvDetail)
+
+                if (titleView == null || detailView == null) {
+                    Log.e("PlantInfo", "⚠️ TextViews missing inside CardView $cardId!")
+                    return
+                }
+
+                titleView.text = title
+                detailView.text = detail ?: "Not Available"
+            }
+        }
     }
 
-    /**
-     * Function to parse the response string into a key-value map
-     */
     /**
      * Function to parse the response string into a key-value map
      */
@@ -98,11 +120,30 @@ class PlantInfo : AppCompatActivity() {
                 currentKey = parts[0].trim()
                 details[currentKey] = parts.getOrNull(1)?.trim() ?: ""
             } else if (currentKey.isNotEmpty()) {
-                // Append to previous key if it's part of multiline data (like Growth Conditions)
+                // Append to previous key if it's part of multiline data
                 details[currentKey] += "\n$line"
             }
         }
 
+        // Extract Growth Conditions sub-attributes
+        val growthConditions = details["Growth Conditions"] ?: ""
+        details["Temperature"] = extractConditionDetail(growthConditions, "Temperature")
+        details["Light"] = extractConditionDetail(growthConditions, "Light")
+        details["Water"] = extractConditionDetail(growthConditions, "Water")
+        details["Soil"] = extractConditionDetail(growthConditions, "Soil")
+
         return details
+    }
+
+    /**
+     * Helper function to extract specific Growth Conditions details
+     */
+    private fun extractConditionDetail(growthConditions: String, keyword: String): String {
+        val regex = Regex("$keyword:\\s*([^\n]+)", RegexOption.IGNORE_CASE)
+        return regex.find(growthConditions)?.groupValues?.get(1)?.trim() ?: "Not Available"
+    }
+
+    fun backButton() {
+        startActivity(Intent(this, ImageCapture::class.java))
     }
 }

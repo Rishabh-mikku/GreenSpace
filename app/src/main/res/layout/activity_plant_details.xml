@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:padding="16dp"
     tools:context=".screens.PlantInfo">
@@ -34,7 +34,7 @@
             app:cardElevation="4dp"
             android:visibility="gone"
             android:layout_marginBottom="12dp"
-            android:background="@drawable/card_background">
+            app:cardBackgroundColor="@color/light_green">
 
             <TextView
                 android:id="@+id/tvNoPlant"
@@ -48,19 +48,122 @@
                 android:gravity="center"/>
         </androidx.cardview.widget.CardView>
 
-        <!-- CardView Template for Each Detail -->
+        <!-- Other Details -->
         <include layout="@layout/item_plant_detail" android:id="@+id/scientificNameCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/commonNameCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/familyCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/nativeHabitatCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/geographicalDistributionCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/physicalDescriptionCard"/>
-        <include layout="@layout/item_plant_detail" android:id="@+id/growthConditionsCard"/>
+
+        <!-- Growth Conditions Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/growthConditionsCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/light_green">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Growth Conditions"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:paddingBottom="8dp"/>
+
+                <!-- Temperature Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/tempCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvTemp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Temperature: Prefers warm climates (10-30°C)"
+                        android:textSize="14sp"
+                        android:padding="12dp"
+                        android:textColor="@color/black"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Light Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/lightCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvLight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Light: Full sun to partial shade"
+                        android:textSize="14sp"
+                        android:padding="12dp"
+                        android:textColor="@color/black"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Water Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/waterCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvWater"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Water: Moderate watering, ensuring soil is well-drained"
+                        android:textSize="14sp"
+                        android:padding="12dp"
+                        android:textColor="@color/black"/>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Soil Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/soilCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <TextView
+                        android:id="@+id/tvSoil"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Soil: Rich, well-drained soil with a pH between 6.0 and 7.0"
+                        android:textSize="14sp"
+                        android:padding="12dp"
+                        android:textColor="@color/black"/>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Other Sections -->
         <include layout="@layout/item_plant_detail" android:id="@+id/usesCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/interestingFactsCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/conservationStatusCard"/>
         <include layout="@layout/item_plant_detail" android:id="@+id/gardenTipsCard"/>
-
 
         <!-- Go Back Button -->
         <Button
@@ -70,6 +173,7 @@
             android:text="Go Back"
             android:backgroundTint="@color/green"
             android:textColor="@android:color/white"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:onClick="backButton" />
     </LinearLayout>
 </ScrollView>
