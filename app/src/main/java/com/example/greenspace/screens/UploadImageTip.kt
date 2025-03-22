@@ -1,4 +1,4 @@
-package com.example.greenspace.collab
+package com.example.greenspace.screens
 
 import android.app.Activity
 import android.content.Intent
@@ -11,9 +11,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.greenspace.R
-import com.google.firebase.auth.FirebaseAuth
+import com.example.greenspace.collab.AWSImageTipUploader
 
-class Upload : AppCompatActivity() {
+class UploadImageTip : AppCompatActivity() {
     private lateinit var selectedImageView: ImageView
     private lateinit var selectImageButton: Button
     private lateinit var uploadButton: Button

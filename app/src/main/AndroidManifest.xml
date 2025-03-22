@@ -62,7 +62,7 @@
 
         </activity>
 
-        <activity android:name=".collab.Upload"
+        <activity android:name=".screens.UploadImageTip"
             android:exported="true">
 
         </activity>

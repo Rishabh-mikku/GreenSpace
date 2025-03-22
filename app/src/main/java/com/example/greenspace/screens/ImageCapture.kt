@@ -21,7 +21,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.media3.common.util.Log
 import com.example.greenspace.R
-import com.example.greenspace.collab.Upload
 import com.example.greenspace.mistralapi.ApiClient
 import com.example.greenspace.mistralapi.MistralRequest
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +66,7 @@ class ImageCapture : AppCompatActivity() {
         }
 
         collabBtn.setOnClickListener {
-            startActivity(Intent(this, Upload::class.java))
+            startActivity(Intent(this, UploadImageTip::class.java))
         }
     }
 
