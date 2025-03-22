@@ -52,7 +52,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
-            android:id="@+id/btnHome"
+            android:id="@+id/btnCreateSharedSpace"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -61,7 +61,7 @@
             android:scaleType="centerInside" />
 
         <ImageButton
-            android:id="@+id/btnSearchBottom"
+            android:id="@+id/btnSharedSpaces"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

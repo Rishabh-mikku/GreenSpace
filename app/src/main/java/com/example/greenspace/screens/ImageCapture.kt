@@ -34,6 +34,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.example.greenspace.mistralapi.Content
 import com.example.greenspace.mistralapi.MessageRequest
+import com.example.greenspace.sharedspace.CreateSharedSpaceActivity
+import com.example.greenspace.sharedspace.SharedSpacesActivity
 
 
 class ImageCapture : AppCompatActivity() {
@@ -44,7 +46,10 @@ class ImageCapture : AppCompatActivity() {
     private lateinit var imageUri: Uri
     private lateinit var collabBtn: ImageButton
     private lateinit var tipsImageBtn: ImageButton
+    private lateinit var sharedSpacesBtn: ImageButton
+    private lateinit var createSharedSpaceBtn: ImageButton
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_window)
@@ -55,6 +60,8 @@ class ImageCapture : AppCompatActivity() {
         plantNetUploader = PlantNetUploader(this)
         collabBtn = findViewById(R.id.btnAdd)
         tipsImageBtn = findViewById(R.id.btnTipsImage)
+        sharedSpacesBtn = findViewById(R.id.btnSharedSpaces)
+        createSharedSpaceBtn = findViewById(R.id.btnCreateSharedSpace)
 
         setupImageUri()
         checkAndRequestPermissions()
@@ -73,6 +80,14 @@ class ImageCapture : AppCompatActivity() {
 
         tipsImageBtn.setOnClickListener {
             startActivity(Intent(this, ViewTipsActivity::class.java))
+        }
+
+        sharedSpacesBtn.setOnClickListener {
+            startActivity(Intent(this, SharedSpacesActivity::class.java))
+        }
+
+        createSharedSpaceBtn.setOnClickListener {
+            startActivity(Intent(this, CreateSharedSpaceActivity::class.java))
         }
     }
 

@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-sharedspacegs-dev-ff3f4-authRole",
+      "UnauthRoleArn": "arn:aws:iam::847705415430:role/amplify-sharedspacegs-dev-ff3f4-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::847705415430:role/amplify-sharedspacegs-dev-ff3f4-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-sharedspacegs-dev-ff3f4-deployment",
+      "UnauthRoleName": "amplify-sharedspacegs-dev-ff3f4-unauthRole",
+      "StackName": "amplify-sharedspacegs-dev-ff3f4",
+      "StackId": "arn:aws:cloudformation:us-east-1:847705415430:stack/amplify-sharedspacegs-dev-ff3f4/d8b75200-0756-11f0-9531-0e73da89f1cd",
+      "AmplifyAppId": "d2ja1ruyvfh8tx"
+    },
+    "categories": {
+      "api": {
+        "sharedspacegs": {}
+      }
+    }
+  }
+}

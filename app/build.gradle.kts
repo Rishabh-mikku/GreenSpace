@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.support.annotations)
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.androidx.cardview)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
