@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.support.annotations)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.cardview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,4 +80,6 @@ dependencies {
 
     // ✅ Google ML Kit
     implementation("com.google.mlkit:object-detection:17.0.1")
+
+    implementation ("androidx.cardview:cardview:1.0.0")
 }

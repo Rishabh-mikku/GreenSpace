@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:padding="16dp"
+    tools:context=".screens.PlantInfo">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Plant Image -->
+        <ImageView
+            android:id="@+id/plantImageView"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:background="@drawable/image_border"
+            android:contentDescription="Plant Image"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Card for No Plant Identified -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardNoPlant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            android:visibility="gone"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/card_background">
+
+            <TextView
+                android:id="@+id/tvNoPlant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No Plant Identified"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:padding="12dp"
+                android:textColor="@color/dark_green"
+                android:gravity="center"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- CardView Template for Each Detail -->
+        <include layout="@layout/item_plant_detail" android:id="@+id/scientificNameCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/commonNameCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/familyCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/nativeHabitatCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/geographicalDistributionCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/physicalDescriptionCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/growthConditionsCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/usesCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/interestingFactsCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/conservationStatusCard"/>
+        <include layout="@layout/item_plant_detail" android:id="@+id/gardenTipsCard"/>
+
+
+        <!-- Go Back Button -->
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go Back"
+            android:backgroundTint="@color/green"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

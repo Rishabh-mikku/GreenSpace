@@ -1,89 +1,108 @@
 package com.example.greenspace.screens
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
+import com.bumptech.glide.Glide
 import com.example.greenspace.R
 
 class PlantInfo : AppCompatActivity() {
-    @SuppressLint("SetTextI18n", "MissingInflatedId")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_plant_info)
+        setContentView(R.layout.activity_plant_details)
 
-        val imageView: ImageView = findViewById(R.id.plantImageView)
-        val scientificNameTextView: TextView = findViewById(R.id.tvScientificName)
-        val commonNamesTextView: TextView = findViewById(R.id.tvCommonNames)
-        val familyTextView: TextView = findViewById(R.id.tvFamily)
-        val confidenceTextView: TextView = findViewById(R.id.tvConfidence)
-        val wikiButton: Button = findViewById(R.id.btnWiki)
-        val backButton: Button = findViewById(R.id.btnBack)
-        val noPlantTextView: TextView = findViewById(R.id.tvNoPlant)
+        // Get data from Intent
+        val plantInfo = intent.getStringExtra("PLANT_INFO") ?: "Plant Not Identified"
+        val plantImageUrl = intent.getStringExtra("PLANT_IMAGE_URL") // Get Image URL
 
-        val scientificName: String? = intent.getStringExtra("scientific_name")
-        val imagePath: String? = intent.getStringExtra("image_path")
+        // Display plant information
+        displayPlantInfo(plantInfo)
 
-        if (scientificName == "No Plant Identified") {
-            // If confidence is below 15%, show "No Plant Identified"
-            // Load image from file path
-            if (!imagePath.isNullOrEmpty()) {
-                val bitmap = BitmapFactory.decodeFile(imagePath)
-                imageView.setImageBitmap(bitmap)
-            }
-            noPlantTextView.text = "No Plant Identified"
-            scientificNameTextView.visibility = View.GONE
-            commonNamesTextView.visibility = View.GONE
-            familyTextView.visibility = View.GONE
-            confidenceTextView.visibility = View.GONE
-            wikiButton.visibility = View.GONE
+        // Display plant image
+        displayPlantImage(plantImageUrl)
+    }
+
+    /**
+     * Function to parse and display plant details
+     */
+    private fun displayPlantInfo(plantInfo: String) {
+        if (plantInfo == "Plant Not Identified") {
+            findViewById<CardView>(R.id.cardNoPlant).visibility = View.VISIBLE
         } else {
+            findViewById<CardView>(R.id.cardNoPlant).visibility = View.GONE
 
-            // Get data from intent
-            val commonNames: String? = intent.getStringExtra("common_names")
-            val family: String? = intent.getStringExtra("family")
-            val confidence: Float = intent.getFloatExtra("confidence", -1.0f)
-            val wikiLink: String? = intent.getStringExtra("wiki_link")
+            val detailsMap = parsePlantInfo(plantInfo)
 
-            // Load image from file path
-            if (!imagePath.isNullOrEmpty()) {
-                val bitmap = BitmapFactory.decodeFile(imagePath)
-                imageView.setImageBitmap(bitmap)
-            }
+            setCardDetails(R.id.scientificNameCard, "Scientific Name", detailsMap["Scientific Name"])
+            setCardDetails(R.id.commonNameCard, "Common Name", detailsMap["Common Name"])
+            setCardDetails(R.id.familyCard, "Family", detailsMap["Family"])
+            setCardDetails(R.id.nativeHabitatCard, "Native Habitat", detailsMap["Native Habitat"])
+            setCardDetails(R.id.geographicalDistributionCard, "Geographical Distribution", detailsMap["Geographical Distribution"])
+            setCardDetails(R.id.physicalDescriptionCard, "Physical Description", detailsMap["Physical Description"])
+            setCardDetails(R.id.growthConditionsCard, "Growth Conditions", detailsMap["Growth Conditions"])
+            setCardDetails(R.id.usesCard, "Uses", detailsMap["Uses"])
+            setCardDetails(R.id.interestingFactsCard, "Interesting Facts", detailsMap["Interesting Facts"])
+            setCardDetails(R.id.conservationStatusCard, "Conservation Status", detailsMap["Conservation Status"])
+            setCardDetails(R.id.gardenTipsCard, "Garden Tips", detailsMap["Steps to Grow in a Garden"])
+        }
+    }
 
-            noPlantTextView.visibility = View.GONE
-            scientificNameTextView.text = "Scientific Name: $scientificName"
-            commonNamesTextView.text = "Common Names: $commonNames"
-            familyTextView.text = "Family: ${family ?: "Not available"}"
-            confidenceTextView.text = if (confidence >= 0) {
-                "Confidence: ${"%.2f".format(confidence)}%"
-            } else {
-                "Confidence: Not available"
-            }
+    /**
+     * Function to display the plant image using Glide
+     */
+    private fun displayPlantImage(imageUrl: String?) {
+        val imageView = findViewById<ImageView>(R.id.plantImageView)
 
-            // Show Wikipedia button only if link is available
-            if (!wikiLink.isNullOrEmpty() && wikiLink != "Not available") {
-                wikiButton.visibility = View.VISIBLE
-                wikiButton.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(wikiLink))
-                    startActivity(intent)
-                }
-            } else {
-                wikiButton.visibility = View.GONE
+        if (!imageUrl.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(imageUrl)
+                .placeholder(R.drawable.plant_image_placeholder) // Show a placeholder while loading
+                .error(R.drawable.error_image) // Show an error image if loading fails
+                .into(imageView)
+            imageView.visibility = View.VISIBLE
+        } else {
+            imageView.visibility = View.GONE // Hide ImageView if no image URL
+        }
+    }
+
+    /**
+     * Function to update a CardView's title and text dynamically
+     */
+    private fun setCardDetails(cardId: Int, title: String, detail: String?) {
+        val cardView = findViewById<View>(cardId)
+        cardView.findViewById<TextView>(R.id.tvTitle).text = title
+        cardView.findViewById<TextView>(R.id.tvDetail).text = detail ?: "Not Available"
+
+        // Apply padding and style dynamically
+        cardView.setBackgroundResource(R.drawable.rounded_card)
+    }
+
+    /**
+     * Function to parse the response string into a key-value map
+     */
+    /**
+     * Function to parse the response string into a key-value map
+     */
+    private fun parsePlantInfo(response: String): Map<String, String> {
+        val details = mutableMapOf<String, String>()
+        val lines = response.split("\n").map { it.trim() }
+        var currentKey = ""
+
+        for (line in lines) {
+            if (line.contains(":") && !line.startsWith("-")) { // New key found
+                val parts = line.split(":", limit = 2)
+                currentKey = parts[0].trim()
+                details[currentKey] = parts.getOrNull(1)?.trim() ?: ""
+            } else if (currentKey.isNotEmpty()) {
+                // Append to previous key if it's part of multiline data (like Growth Conditions)
+                details[currentKey] += "\n$line"
             }
         }
 
-        // Back button logic
-        backButton.setOnClickListener {
-            val intent = Intent(this, ImageCapture::class.java)
-            startActivity(intent)
-            finish()
-        }
+        return details
     }
 }

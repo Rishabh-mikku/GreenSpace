@@ -8,4 +8,5 @@
     <color name="button_green">#43A047</color>
     <color name="dark_gray">#4A4A4A</color>
     <color name="green">#2E7D32</color>
+    <color name="gray">#808080</color>
 </resources>

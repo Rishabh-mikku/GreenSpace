@@ -135,36 +135,36 @@ class ImageCapture : AppCompatActivity() {
                             role = "user",
                             content = listOf(
                                 Content(type = "text", text = """
-                                  Identify this plant, leaf, or flower from the image and provide only the requested details in the exact format below. Ensure responses are factual, concise, and free from extra details.  
+                              Identify this plant, leaf, or flower from the image and provide only the requested details in the exact format below. Ensure responses are factual, concise, and free from extra details.  
 
-                                  Common Name:  
-                                  Scientific Name:  
-                                  Family:  
-                                  Native Habitat:  
-                                  Geographical Distribution (Countries/Regions):  
-                                  Physical Description:  
-                                  Growth Conditions:  
-                                    - Temperature: (e.g., 20-30°C, Prefers warm climates but can tolerate various temperatures)  
-                                    - Light:  
-                                    - Water:  
-                                    - Soil:  
-                                  Uses (Exactly 4):  
-                                    1.  
-                                    2.  
-                                    3.  
-                                    4.  
-                                  Interesting Facts (Exactly 4):  
-                                    1.  
-                                    2.  
-                                    3.  
-                                    4.  
-                                  Conservation Status:  
+                              Common Name:  
+                              Scientific Name:  
+                              Family:  
+                              Native Habitat:  
+                              Geographical Distribution (Countries/Regions):  
+                              Physical Description:  
+                              Growth Conditions:  
+                                - Temperature: (e.g., 20-30°C, Prefers warm climates but can tolerate various temperatures)  
+                                - Light:  
+                                - Water:  
+                                - Soil:  
+                              Uses (Exactly 4):  
+                                1.  
+                                2.  
+                                3.  
+                                4.  
+                              Interesting Facts (Exactly 4):  
+                                1.  
+                                2.  
+                                3.  
+                                4.  
+                              Conservation Status:  
 
-                                  Steps to Grow in a Garden:  
-                                  (If the plant is "not suitable" for garden cultivation, respond with "Can't be grown in a garden.")  
-                                    
-                                  If the plant is unidentifiable, respond with "Plant Not Identified." 
-                            """.trimIndent()),
+                              Steps to Grow in a Garden:  
+                              (If the plant is "not suitable" for garden cultivation, respond with "Can't be grown in a garden.")  
+                                
+                              If the plant is unidentifiable, respond with "Plant Not Identified." 
+                        """.trimIndent()),
                                 Content(type = "image_url", image_url = s3ImageUrl)
                             )
                         )
@@ -179,13 +179,12 @@ class ImageCapture : AppCompatActivity() {
                     val plantInfo = mistralResponse?.choices?.get(0)?.message?.content ?: "Plant Not Identified"
 
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@ImageCapture, "Plant Info:\n$plantInfo", Toast.LENGTH_LONG).show()
                         Log.d("PlantInfo", "Plant Info: $plantInfo")
+                        sendResultToPlantInfo(plantInfo, s3ImageUrl) // Pass both plant info & image
                     }
                 } else {
                     val errorMessage = response.errorBody()?.string() ?: "Unknown error"
                     Log.e("MistralAPI", "Error: $errorMessage")
-
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@ImageCapture, "Mistral API Error: $errorMessage", Toast.LENGTH_LONG).show()
                     }
@@ -199,7 +198,16 @@ class ImageCapture : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Function to send plant info and image URL to PlantInfo.kt
+     */
+    private fun sendResultToPlantInfo(plantInfo: String, imageUrl: String) {
+        val intent = Intent(this, PlantInfo::class.java).apply {
+            putExtra("PLANT_INFO", plantInfo)
+            putExtra("PLANT_IMAGE_URL", imageUrl) // Send image URL
+        }
+        startActivity(intent)
+    }
 
     private fun checkAndRequestPermissions() {
         val permissions = mutableListOf(Manifest.permission.CAMERA)
