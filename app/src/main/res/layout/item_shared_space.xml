@@ -34,6 +34,24 @@
         android:paddingTop="4dp"
         android:textColor="@android:color/black"/>
 
+    <TextView
+        android:id="@+id/space_owner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Owner: xyz"
+        android:textSize="14sp"
+        android:paddingTop="4dp"
+        android:textColor="@android:color/black"/>
+
+    <TextView
+        android:id="@+id/space_slot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Available Slot: 10"
+        android:textSize="14sp"
+        android:paddingTop="4dp"
+        android:textColor="@android:color/black"/>
+
     <Button
         android:id="@+id/button_join_space"
         android:layout_width="wrap_content"

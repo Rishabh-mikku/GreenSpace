@@ -55,7 +55,7 @@ class CreateSharedSpaceActivity : AppCompatActivity() {
             name = name,
             location = location,
             description = description,
-            owner = userId,
+            owner = owner,
             availableSlots = slots.toInt(),
             users = listOf()
         )

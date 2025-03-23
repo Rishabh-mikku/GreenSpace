@@ -6,7 +6,7 @@ data class SharedSpace(
     val location: String = "",
     val description: String = "",
     val owner: String = "",
-    val availableSlots: Int = 0,
+    var availableSlots: Int = 0,
     val users: List<String> = listOf()
 )
 

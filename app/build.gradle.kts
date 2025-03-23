@@ -83,4 +83,7 @@ dependencies {
     implementation("com.google.mlkit:object-detection:17.0.1")
 
     implementation ("androidx.cardview:cardview:1.0.0")
+
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+    implementation ("com.google.firebase:firebase-auth:22.1.2")
 }
