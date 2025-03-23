@@ -5,32 +5,62 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/camera_background">
+    android:background="@drawable/main_window_background_gradient">
 
-    <!-- Top Bar -->
-    <LinearLayout
-        android:id="@+id/topBar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal"
+    <!-- Upload Images Here Text -->
+    <TextView
+        android:id="@+id/tvUploadImages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload Images Here"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        android:textColor="#4F7942"
+        android:fontFamily="@font/pacifo_regular"
         android:gravity="center"
-        android:padding="8dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/scannerFrame"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Scanner Frame Overlay -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_scanner_frame"
+            android:scaleType="fitXY"/>
 
-    </LinearLayout>
+        <!-- Camera Icon in the Center -->
+        <ImageView
+            android:id="@+id/cameraIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_camera_green"
+            android:scaleType="centerInside"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Scanner Frame -->
     <ImageView
         android:id="@+id/scannerFrame"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:layout_marginTop="50dp"
         android:scaleType="fitXY"
         android:src="@drawable/ic_scanner_frame"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:clickable="true"
@@ -54,18 +84,18 @@
         <ImageButton
             android:id="@+id/btnHome"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_home"
+            android:src="@drawable/ic_create_shared_space"
             android:background="@android:color/transparent"
             android:scaleType="centerInside" />
 
         <ImageButton
             android:id="@+id/btnSearchBottom"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_search"
+            android:src="@drawable/ic_view_shared_space"
             android:background="@android:color/transparent"
             android:scaleType="centerInside" />
 
@@ -86,9 +116,9 @@
         <ImageButton
             android:id="@+id/btnTipsImage"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_chat"
+            android:src="@drawable/view_images_tips"
             android:background="@android:color/transparent"
             android:scaleType="centerInside" />
 
