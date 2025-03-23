@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,8 @@ import com.bumptech.glide.Glide
 import com.example.greenspace.R
 
 class PlantInfo : AppCompatActivity() {
+
+    private lateinit var backBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +29,12 @@ class PlantInfo : AppCompatActivity() {
 
         // Display plant image
         displayPlantImage(plantImageUrl)
+
+        // Back button implementation
+        backBtn = findViewById(R.id.btnBack)
+        backBtn.setOnClickListener {
+            startActivity(Intent(this, ImageCapture::class.java))
+        }
     }
 
     /**

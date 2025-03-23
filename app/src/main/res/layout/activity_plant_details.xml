@@ -19,11 +19,11 @@
             android:id="@+id/plantImageView"
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
             android:background="@drawable/image_border"
             android:contentDescription="Plant Image"
             android:layout_marginBottom="12dp"/>
+
 
         <!-- Card for No Plant Identified -->
         <androidx.cardview.widget.CardView
@@ -171,9 +171,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Go Back"
-            android:backgroundTint="@color/green"
             android:textColor="@android:color/white"
-            android:layout_marginTop="16dp"
-            android:onClick="backButton" />
+            android:layout_marginTop="16dp" />
     </LinearLayout>
 </ScrollView>
