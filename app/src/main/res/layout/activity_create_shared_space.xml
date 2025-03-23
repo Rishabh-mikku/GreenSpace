@@ -1,43 +1,117 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/plant_gradient"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/edit_text_space_name"
-        android:layout_width="match_parent"
+    <!-- Heading TextView -->
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Space Name"
-        android:minHeight="48dp"/>
+        android:text="Add Shared Spaces for Gardening"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/green_dark"
+        android:fontFamily="sans-serif-medium"
+        android:padding="12dp"
+        android:gravity="center"
+        android:layout_marginBottom="12dp"
+        android:drawableLeft="@drawable/ic_leaf"
+        android:drawablePadding="8dp"/>
 
-    <EditText
-        android:id="@+id/edit_text_space_location"
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Location"
-        android:minHeight="48dp"/>
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp"
+        android:padding="16dp"
+        android:background="@color/white"
+        android:layout_gravity="center">
 
-    <EditText
-        android:id="@+id/edit_text_space_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Description"
-        android:minHeight="48dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
 
-    <EditText
-        android:id="@+id/edit_text_available_slots"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Available Slots"
-        android:minHeight="48dp"/>
+            <EditText
+                android:id="@+id/edit_text_space_name"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Space Name"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_space"
+                android:drawablePadding="8dp"/>
 
-    <Button
-        android:id="@+id/button_create_space"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create Shared Space"
-        android:layout_marginTop="10dp"/>
+            <EditText
+                android:id="@+id/edit_text_space_location"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Location"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_location"
+                android:drawablePadding="8dp"
+                android:layout_marginTop="8dp"
+                tools:ignore="TextFields" />
 
+            <EditText
+                android:id="@+id/edit_text_space_description"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:hint="Description"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_description"
+                android:drawablePadding="8dp"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_text_owner"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:hint="Owner Name"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_owner"
+                android:drawablePadding="8dp"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/edit_text_available_slots"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="Available Slots"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_slots"
+                android:drawablePadding="8dp"
+                android:layout_marginTop="8dp"
+                tools:ignore="Autofill" />
+
+            <Button
+                android:id="@+id/button_create_space"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:text="Create Shared Space"
+                android:background="@drawable/rounded_button"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:padding="12dp"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </LinearLayout>

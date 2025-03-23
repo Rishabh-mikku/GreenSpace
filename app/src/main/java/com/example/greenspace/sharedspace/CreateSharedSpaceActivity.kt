@@ -16,6 +16,7 @@ class CreateSharedSpaceActivity : AppCompatActivity() {
     private lateinit var spaceLocation: EditText
     private lateinit var spaceDescription: EditText
     private lateinit var availableSlots: EditText
+    private lateinit var ownerName: EditText
     private lateinit var createButton: Button
     private val db = FirebaseFirestore.getInstance()
 
@@ -28,6 +29,7 @@ class CreateSharedSpaceActivity : AppCompatActivity() {
         spaceDescription = findViewById(R.id.edit_text_space_description)
         availableSlots = findViewById(R.id.edit_text_available_slots)
         createButton = findViewById(R.id.button_create_space)
+        ownerName = findViewById(R.id.edit_text_owner)
 
         createButton.setOnClickListener {
             createSharedSpace()
@@ -39,8 +41,9 @@ class CreateSharedSpaceActivity : AppCompatActivity() {
         val location = spaceLocation.text.toString().trim()
         val description = spaceDescription.text.toString().trim()
         val slots = availableSlots.text.toString().trim()
+        val owner = ownerName.text.toString().trim()
 
-        if (name.isEmpty() || location.isEmpty() || description.isEmpty() || slots.isEmpty()) {
+        if (name.isEmpty() || location.isEmpty() || description.isEmpty() || slots.isEmpty() || owner.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
         }
