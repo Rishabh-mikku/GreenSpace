@@ -9,5 +9,7 @@
     <color name="dark_gray">#4A4A4A</color>
     <color name="green">#2E7D32</color>
     <color name="gray">#808080</color>
+    <color name="light_gray">#F5F5F5</color>
+    <color name="green_dark">#2E7D32</color>
     <color name="plant_green">#4CAF50</color>
 </resources>

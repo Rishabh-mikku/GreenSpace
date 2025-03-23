@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Queries for Google Play Services -->
+    <queries>
+        <!-- Query for Google Play Store -->
+        <package android:name="com.android.vending" />
+
+        <!-- Query for Google Play Services -->
+        <package android:name="com.google.android.gms" />
+
+        <!-- Query for Google Play Services Auth (Google Sign-In, Firebase, etc.) -->
+        <package android:name="com.google.android.gms.auth.api.signin" />
+    </queries>
+
     <!-- Camera feature -->
     <uses-feature
         android:name="android.hardware.camera"
@@ -15,6 +27,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
 
     <application
         android:allowBackup="true"
@@ -28,6 +42,10 @@
         tools:targetApi="33"
         android:networkSecurityConfig="@xml/network_security_config">
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -36,7 +54,6 @@
         <activity
             android:name=".screens.ImageCapture"
             android:exported="true">
-
         </activity>
 
         <activity android:name=".screens.HomePage"
@@ -49,27 +66,30 @@
 
         <activity android:name=".screens.LoginPage"
             android:exported="true">
-
         </activity>
 
         <activity android:name=".screens.ProfileInfo"
             android:exported="true">
-
         </activity>
 
         <activity android:name=".screens.PlantInfo"
             android:exported="true">
-
         </activity>
 
         <activity android:name=".screens.UploadImageTip"
             android:exported="true">
-
         </activity>
 
         <activity android:name=".screens.ViewTipsActivity"
             android:exported="true">
+        </activity>
 
+        <activity android:name=".sharedspace.SharedSpacesActivity"
+            android:exported="true">
+        </activity>
+
+        <activity android:name=".sharedspace.CreateSharedSpaceActivity"
+            android:exported="true">
         </activity>
 
         <!-- FileProvider configuration -->

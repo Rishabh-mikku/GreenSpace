@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "573923425585-ltqv9nrg60occ0jtuv2grqknn7frp5ne.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.greenspace",
+            "certificate_hash": "0737baaff2dff86c8a846b7b9f7c5750900e9e88"
+          }
+        },
+        {
           "client_id": "573923425585-535umccnvqrhujvq3cteetlul8akaol2.apps.googleusercontent.com",
           "client_type": 3
         }
