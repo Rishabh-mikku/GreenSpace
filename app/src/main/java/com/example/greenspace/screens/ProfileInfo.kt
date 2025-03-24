@@ -3,6 +3,7 @@ package com.example.greenspace.screens
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -59,14 +60,16 @@ class ProfileInfo : AppCompatActivity() {
 
         logoutBtn = findViewById(R.id.logout_button)
         logoutBtn.setOnClickListener {
-            mGoogleSignInClient.signOut()
-                .addOnCompleteListener {
-                    val intent = Intent(this, LoginPage::class.java)
-                    Toast.makeText(this, "Logging Out !!!", Toast.LENGTH_SHORT)
-                        .show()
-                    startActivity(intent)
-                    finish()
-                }
+            mGoogleSignInClient.signOut().addOnCompleteListener {
+                auth.signOut() // Sign out from Firebase Authentication as well
+                SharedPreference.clearData(this) // Clear stored user data if needed
+
+                val intent = Intent(this, LoginPage::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                Toast.makeText(this, "Logging Out !!!", Toast.LENGTH_SHORT).show()
+                startActivity(intent)
+                finish()
+            }
         }
     }
 }

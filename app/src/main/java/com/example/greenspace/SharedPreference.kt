@@ -42,4 +42,8 @@ object SharedPreference {
     fun getProfilePic(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_PROFILE_PIC, null)
     }
+
+    fun clearData(context: Context) {
+        getSharedPreferences(context).edit().clear().apply()
+    }
 }

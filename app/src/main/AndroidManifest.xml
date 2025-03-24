@@ -92,6 +92,10 @@
             android:exported="true">
         </activity>
 
+        <activity android:name=".screens.SignUp"
+            android:exported="true">
+        </activity>
+
         <!-- FileProvider configuration -->
         <provider
             android:name="androidx.core.content.FileProvider"
