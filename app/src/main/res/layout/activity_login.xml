@@ -96,17 +96,6 @@
                 android:background="@android:color/transparent"/>
         </LinearLayout>
 
-        <!-- Forgot Password -->
-        <TextView
-            android:id="@+id/tvForgotPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Forgot your password?"
-            android:textSize="12sp"
-            android:textColor="#6D6D6D"
-            android:gravity="end"
-            android:layout_marginBottom="16dp"/>
-
         <!-- Sign In Button -->
         <Button
             android:id="@+id/btnSignIn"
@@ -115,6 +104,7 @@
             android:text="Sign In"
             android:textColor="@android:color/white"
             android:backgroundTint="#3B5998"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Divider -->
@@ -142,15 +132,6 @@
             android:layout_marginTop="8dp">
 
             <Button
-                android:id="@+id/btnFacebook"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Facebook"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#3B5998"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
                 android:id="@+id/btnGoogle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -165,12 +146,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New user? Register   Sign Up"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textColor="#6D6D6D"
             android:gravity="center"
             android:layout_marginTop="16dp"
             android:clickable="true"
-            tools:ignore="KeyboardInaccessibleWidget" />
+            tools:ignore="KeyboardInaccessibleWidget"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 </ScrollView>
