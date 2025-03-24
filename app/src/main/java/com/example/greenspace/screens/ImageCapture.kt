@@ -9,6 +9,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -105,7 +107,8 @@ class ImageCapture : AppCompatActivity() {
     }
 
     private fun processImageUri(uri: Uri) {
-        val resizedUri = resizeAndCompressImage(uri) ?: uri  // Use resized image if successful
+        val correctedUri = correctImageRotation(uri) ?: uri  // Fix rotation first
+        val resizedUri = resizeAndCompressImage(correctedUri) ?: correctedUri  // Resize after rotation
         imageView.setImageURI(resizedUri)
         uploadToS3AndPlantRecognition(resizedUri)
     }
@@ -315,4 +318,32 @@ class ImageCapture : AppCompatActivity() {
         return file.absolutePath  // Return the local file path
     }
 
+    private fun correctImageRotation(uri: Uri): Uri? {
+        return try {
+            val inputStream = contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+
+            val exif = ExifInterface(contentResolver.openInputStream(uri)!!)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+            val rotatedBitmap = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270)
+                else -> bitmap
+            }
+
+            saveBitmapToCache(rotatedBitmap)  // Save rotated image and return new URI
+        } catch (e: Exception) {
+            Log.e("ImageRotation", "Error correcting image rotation: ${e.message}", e)
+            null
+        }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Int): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees.toFloat())
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
 }

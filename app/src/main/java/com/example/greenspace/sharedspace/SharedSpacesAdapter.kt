@@ -37,6 +37,7 @@ class SharedSpacesAdapter(private val sharedSpaces: List<SharedSpace>) :
         private val spaceAvailableSlot: TextView = itemView.findViewById(R.id.space_slot)
         private val spaceUsers: TextView = itemView.findViewById(R.id.space_users)
         private val joinButton: Button = itemView.findViewById(R.id.button_join_space)
+        private val unjoinButton: Button = itemView.findViewById(R.id.button_unjoin_space)
 
         @SuppressLint("SetTextI18n")
         fun bind(space: SharedSpace) {
@@ -45,83 +46,83 @@ class SharedSpacesAdapter(private val sharedSpaces: List<SharedSpace>) :
             spaceDescription.text = space.description
             spaceOwner.text = "Owner: ${space.owner}"
 
-            // Hide available slots field if slots are 0
-            if (space.availableSlots > 0) {
-                spaceAvailableSlot.text = "Available Slots: ${space.availableSlots}"
-                spaceAvailableSlot.visibility = View.VISIBLE
-            } else {
-                spaceAvailableSlot.visibility = View.GONE
-                joinButton.visibility = View.GONE // Hide join button if no slots are left
-            }
-
-            loadUsers(space.spaceId)
+            loadUsersAndSlots(space.spaceId)
 
             joinButton.setOnClickListener {
-                joinSharedSpace(space.spaceId)
+                checkAndJoinSharedSpace(space.spaceId)
+            }
+
+            unjoinButton.setOnClickListener {
+                unjoinSharedSpace(space.spaceId)
             }
         }
 
-        private fun loadUsers(spaceId: String) {
+        private fun loadUsersAndSlots(spaceId: String) {
             val db = FirebaseFirestore.getInstance()
             val spaceRef = db.collection("shared_spaces").document(spaceId)
 
             spaceRef.get().addOnSuccessListener { document ->
                 if (document.exists()) {
                     val usersList = document.get("users") as? List<String> ?: emptyList()
+                    val availableSlots = document.getLong("availableSlots")?.toInt() ?: 0
+                    val user = FirebaseAuth.getInstance().currentUser?.displayName ?: ""
 
-                    if (usersList.isNotEmpty()) {
-                        spaceUsers.text = "Joined Users: ${usersList.joinToString(", ")}"
-                        spaceUsers.visibility = View.VISIBLE
-                    } else {
-                        spaceUsers.visibility = View.GONE
-                    }
+                    spaceUsers.text = "Joined Users: ${usersList.joinToString(", ")}"
+                    spaceAvailableSlot.text = "Available Slots: $availableSlots"
+
+                    joinButton.visibility = if (usersList.contains(user) || availableSlots == 0) View.GONE else View.VISIBLE
+                    unjoinButton.visibility = if (usersList.contains(user)) View.VISIBLE else View.GONE
                 }
             }
         }
 
-        private fun joinSharedSpace(spaceId: String) {
-            val user = FirebaseAuth.getInstance().currentUser
-            if (user == null) {
-                Toast.makeText(itemView.context, "Error: User not authenticated", Toast.LENGTH_SHORT).show()
-                return
-            }
-
+        private fun checkAndJoinSharedSpace(spaceId: String) {
+            val user = FirebaseAuth.getInstance().currentUser ?: return
             val userName = user.displayName ?: "Unknown User"
-            val db = FirebaseFirestore.getInstance()
-            val spaceRef = db.collection("shared_spaces").document(spaceId)
 
-            db.runTransaction { transaction ->
-                val snapshot = transaction.get(spaceRef)
-                val currentSlots = snapshot.getLong("availableSlots") ?: return@runTransaction
-
-                if (currentSlots > 0) {
-                    transaction.update(spaceRef, "users", FieldValue.arrayUnion(userName))
-                    transaction.update(spaceRef, "availableSlots", FieldValue.increment(-1))
-                } else {
-                    throw Exception("No available slots left")
-                }
-            }.addOnSuccessListener {
-                Toast.makeText(itemView.context, "Joined space successfully!", Toast.LENGTH_SHORT).show()
-                loadUsers(spaceId) // Refresh user list
-                updateAvailableSlotsUI(spaceId) // Refresh available slots
-            }.addOnFailureListener { e ->
-                Toast.makeText(itemView.context, "Failed to join space: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        private fun updateAvailableSlotsUI(spaceId: String) {
             val db = FirebaseFirestore.getInstance()
             val spaceRef = db.collection("shared_spaces").document(spaceId)
 
             spaceRef.get().addOnSuccessListener { document ->
-                val updatedSlots = document.getLong("availableSlots") ?: 0
-                if (updatedSlots > 0) {
-                    spaceAvailableSlot.text = "Available Slots: $updatedSlots"
-                    spaceAvailableSlot.visibility = View.VISIBLE
+                val usersList = document.get("users") as? List<String> ?: emptyList()
+                val availableSlots = document.getLong("availableSlots")?.toInt() ?: 0
+
+                if (usersList.contains(userName)) {
+                    Toast.makeText(itemView.context, "Already Joined", Toast.LENGTH_SHORT).show()
+                } else if (availableSlots > 0) {
+                    joinSharedSpace(spaceId, userName)
                 } else {
-                    spaceAvailableSlot.visibility = View.GONE
-                    joinButton.visibility = View.GONE
+                    Toast.makeText(itemView.context, "No available slots", Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+
+        private fun joinSharedSpace(spaceId: String, userName: String) {
+            val db = FirebaseFirestore.getInstance()
+            val spaceRef = db.collection("shared_spaces").document(spaceId)
+
+            spaceRef.update(
+                "users", FieldValue.arrayUnion(userName),
+                "availableSlots", FieldValue.increment(-1)
+            ).addOnSuccessListener {
+                Toast.makeText(itemView.context, "Joined space successfully!", Toast.LENGTH_SHORT).show()
+                loadUsersAndSlots(spaceId)
+            }
+        }
+
+        private fun unjoinSharedSpace(spaceId: String) {
+            val user = FirebaseAuth.getInstance().currentUser ?: return
+            val userName = user.displayName ?: "Unknown User"
+
+            val db = FirebaseFirestore.getInstance()
+            val spaceRef = db.collection("shared_spaces").document(spaceId)
+
+            spaceRef.update(
+                "users", FieldValue.arrayRemove(userName),
+                "availableSlots", FieldValue.increment(1)
+            ).addOnSuccessListener {
+                Toast.makeText(itemView.context, "Unjoined successfully!", Toast.LENGTH_SHORT).show()
+                loadUsersAndSlots(spaceId)
             }
         }
     }

@@ -71,15 +71,36 @@
         android:textColor="@color/black"
         android:paddingBottom="8dp"/>
 
-    <!-- Join Button -->
-    <Button
-        android:id="@+id/button_join_space"
-        android:layout_width="wrap_content"
+    <!-- Buttons Layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Join Space"
-        android:textColor="@android:color/white"
-        android:padding="10dp"
-        android:textStyle="bold"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="@color/green_dark"/>
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="8dp">
+
+        <!-- Join Button -->
+        <Button
+            android:id="@+id/button_join_space"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Join Space"
+            android:textColor="@android:color/white"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/green_dark"/>
+
+        <!-- Unjoin Button -->
+        <Button
+            android:id="@+id/button_unjoin_space"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Leave Space"
+            android:textColor="@android:color/white"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:backgroundTint="@color/green_dark" />
+    </LinearLayout>
 </LinearLayout>

@@ -15,6 +15,7 @@ import com.example.greenspace.R
 class PlantInfo : AppCompatActivity() {
 
     private lateinit var backBtn: Button
+    private lateinit var noCardPlant: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +42,28 @@ class PlantInfo : AppCompatActivity() {
      * Function to parse and display plant details
      */
     private fun displayPlantInfo(plantInfo: String) {
-        if (plantInfo == "Plant Not Identified") {
-            findViewById<CardView>(R.id.cardNoPlant).visibility = View.VISIBLE
+        if (plantInfo.equals("Plant Not Identified.")) {
+            noCardPlant = findViewById(R.id.tvNoPlantIdentified)
+            noCardPlant.visibility = View.VISIBLE
+            Log.d("PLANT INFO: ", "No Plant Identified")
+
+            findViewById<CardView>(R.id.scientificNameCard).visibility = View.GONE
+            findViewById<CardView>(R.id.commonNameCard).visibility = View.GONE
+            findViewById<CardView>(R.id.familyCard).visibility = View.GONE
+            findViewById<CardView>(R.id.nativeHabitatCard).visibility = View.GONE
+            findViewById<CardView>(R.id.geographicalDistributionCard).visibility = View.GONE
+            findViewById<CardView>(R.id.physicalDescriptionCard).visibility = View.GONE
+            findViewById<CardView>(R.id.usesCard).visibility = View.GONE
+            findViewById<CardView>(R.id.interestingFactsCard).visibility = View.GONE
+            findViewById<CardView>(R.id.conservationStatusCard).visibility = View.GONE
+            findViewById<CardView>(R.id.gardenTipsCard).visibility = View.GONE
+            findViewById<CardView>(R.id.tempCard).visibility = View.GONE
+            findViewById<CardView>(R.id.lightCard).visibility = View.GONE
+            findViewById<CardView>(R.id.waterCard).visibility = View.GONE
+            findViewById<CardView>(R.id.soilCard).visibility = View.GONE
+            findViewById<CardView>(R.id.growthConditionsCard).visibility = View.GONE
         } else {
-            findViewById<CardView>(R.id.cardNoPlant).visibility = View.GONE
+            findViewById<CardView>(R.id.tvNoPlantIdentified).visibility = View.GONE
 
             val detailsMap = parsePlantInfo(plantInfo)
 

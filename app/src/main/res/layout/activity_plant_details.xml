@@ -26,27 +26,21 @@
 
 
         <!-- Card for No Plant Identified -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardNoPlant"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvNoPlantIdentified"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            android:visibility="gone"
-            android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="@color/light_green">
+            android:text="Plant Not Identified !!!"
+            android:textColor="#388E3C"
+            android:textSize="40sp"
+            android:fontFamily="@font/pacifo_regular"
+            android:gravity="center"
+            android:padding="8dp"
+            android:layout_marginTop="60dp"
+            android:background="@drawable/rounded_background"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/tvNoPlant"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No Plant Identified"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:padding="12dp"
-                android:textColor="@color/dark_green"
-                android:gravity="center"/>
-        </androidx.cardview.widget.CardView>
 
         <!-- Other Details -->
         <include layout="@layout/item_plant_detail" android:id="@+id/scientificNameCard"/>

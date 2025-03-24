@@ -15,4 +15,6 @@
     <color name="green_shade">#66BB6A</color>
     <color name="shadow">#B0BEC5</color>
     <color name="green_light">#A8E6CF</color>
+    <color name="soft_green">#A8E6CF</color>
+    <color name="black_transparent">#99000000</color>
 </resources>
