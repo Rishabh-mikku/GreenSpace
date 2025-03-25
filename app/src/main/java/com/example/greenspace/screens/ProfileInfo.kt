@@ -27,6 +27,7 @@ class ProfileInfo : AppCompatActivity() {
     private lateinit var tvUsername : TextView
     private lateinit var logoutBtn : MaterialButton
     private lateinit var mGoogleSignInClient : GoogleSignInClient
+    private lateinit var backArrow: ImageView
     private val auth by lazy {
         FirebaseAuth.getInstance()
     }
@@ -47,6 +48,7 @@ class ProfileInfo : AppCompatActivity() {
         tvEmail.text = "${SharedPreference.getEmail(this)}"
         tvUsername.text = "${SharedPreference.getUsername(this)}"
         profilePic = findViewById(R.id.profile_image)
+        backArrow = findViewById(R.id.back_arrow)
         val profilePicUrl = SharedPreference.getProfilePic(this)
         Glide.with(this)
             .load(profilePicUrl)
@@ -70,6 +72,10 @@ class ProfileInfo : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             }
+        }
+
+        backArrow.setOnClickListener {
+            startActivity(Intent(this, ImageCapture::class.java))
         }
     }
 }

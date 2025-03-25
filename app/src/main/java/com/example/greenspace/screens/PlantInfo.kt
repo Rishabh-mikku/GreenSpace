@@ -63,7 +63,7 @@ class PlantInfo : AppCompatActivity() {
             findViewById<CardView>(R.id.soilCard).visibility = View.GONE
             findViewById<CardView>(R.id.growthConditionsCard).visibility = View.GONE
         } else {
-            findViewById<CardView>(R.id.tvNoPlantIdentified).visibility = View.GONE
+            findViewById<TextView>(R.id.tvNoPlantIdentified).visibility = View.GONE
 
             val detailsMap = parsePlantInfo(plantInfo)
 

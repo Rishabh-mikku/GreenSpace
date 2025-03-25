@@ -28,7 +28,6 @@ class LoginPage : AppCompatActivity() {
     private lateinit var googleBtn: Button
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
-    private lateinit var tvForgotPassword: TextView
     private lateinit var tvSignUp: TextView
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var firebaseAuth: FirebaseAuth
@@ -48,7 +47,6 @@ class LoginPage : AppCompatActivity() {
         etPassword = findViewById(R.id.etPassword)
         signInBtn = findViewById(R.id.btnSignIn)
         googleBtn = findViewById(R.id.btnGoogle)
-        tvForgotPassword = findViewById(R.id.tvForgotPassword)
         tvSignUp = findViewById(R.id.tvSignUp)
 
         // Email Sign-In
@@ -71,16 +69,6 @@ class LoginPage : AppCompatActivity() {
 
         googleBtn.setOnClickListener {
             signInGoogle()
-        }
-
-        // Forgot Password
-        tvForgotPassword.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            if (email.isNotEmpty()) {
-                resetPassword(email)
-            } else {
-                Toast.makeText(this, "Enter your email to reset password", Toast.LENGTH_SHORT).show()
-            }
         }
 
         // Navigate to Sign-Up Page

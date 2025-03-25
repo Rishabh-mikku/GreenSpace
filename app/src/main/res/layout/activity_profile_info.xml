@@ -30,9 +30,11 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentStart="true"
+                android:focusable="true"
                 android:src="@drawable/ic_back_arrow"
-                android:layout_marginTop="10dp"
-                app:tint="@color/black" />
+                android:layout_marginTop="8dp"
+                app:tint="@color/black"
+                android:clickable="true"/>
 
             <!-- Profile Image -->
             <ImageView
