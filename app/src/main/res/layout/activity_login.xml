@@ -96,6 +96,19 @@
                 android:background="@android:color/transparent"/>
         </LinearLayout>
 
+        <!-- Forgot Password -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Forgot Password?"
+            android:textSize="14sp"
+            android:textColor="#3B5998"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:textStyle="bold"/>
+
         <!-- Sign In Button -->
         <Button
             android:id="@+id/btnSignIn"
