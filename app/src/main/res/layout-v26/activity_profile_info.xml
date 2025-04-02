@@ -122,25 +122,6 @@
             android:textSize="20sp"
             android:paddingBottom="12dp"/>
 
-        <!-- Location Section -->
-        <TextView
-            android:id="@+id/location_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LOCATION"
-            android:textStyle="bold"
-            android:textColor="@color/dark_green"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Colombia - Cali"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:paddingBottom="12dp"/>
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/logout_button"
             style="@style/Widget.MaterialComponents.Button"
