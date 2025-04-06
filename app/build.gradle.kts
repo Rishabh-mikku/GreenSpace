@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.greenspace"
+    namespace = "com.greenspaceapp.greenspace"
     compileSdk = 35
 
     defaultConfig {
