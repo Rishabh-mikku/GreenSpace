@@ -107,11 +107,25 @@ class ImageCapture : AppCompatActivity() {
     }
 
     private fun processImageUri(uri: Uri) {
-        val correctedUri = correctImageRotation(uri) ?: uri  // Fix rotation first
-        val resizedUri = resizeAndCompressImage(correctedUri) ?: correctedUri  // Resize after rotation
-        imageView.setImageURI(resizedUri)
+        // Step 1: Immediately show the original image to avoid delay
+        imageView.setImageURI(uri)
+
+        // Step 2: Correct rotation
+        val correctedUri = correctImageRotation(uri) ?: uri
+        if (correctedUri != uri) {
+            imageView.setImageURI(correctedUri)
+        }
+
+        // Step 3: Resize and compress
+        val resizedUri = resizeAndCompressImage(correctedUri) ?: correctedUri
+        if (resizedUri != correctedUri) {
+            imageView.setImageURI(resizedUri)
+        }
+
+        // Step 4: Proceed with upload and plant recognition
         uploadToS3AndPlantRecognition(resizedUri)
     }
+
 
     @SuppressLint("UnsafeOptInUsageError")
     private fun uploadToS3AndPlantRecognition(imageUri: Uri) {
