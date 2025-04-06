@@ -52,7 +52,7 @@ class ProfileInfo : AppCompatActivity() {
         val profilePicUrl = SharedPreference.getProfilePic(this)
         Glide.with(this)
             .load(profilePicUrl)
-            .placeholder(R.drawable.profile_placeholder)
+            .placeholder(R.drawable.featuregraphic)
             .into(profilePic)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("573923425585-535umccnvqrhujvq3cteetlul8akaol2.apps.googleusercontent.com")
