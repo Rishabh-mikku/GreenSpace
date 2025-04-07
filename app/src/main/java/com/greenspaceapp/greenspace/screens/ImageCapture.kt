@@ -18,10 +18,12 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.greenspaceapp.greenspace.R
 import com.greenspaceapp.greenspace.mistralapi.ApiClient
 import com.greenspaceapp.greenspace.mistralapi.MistralRequest
@@ -289,7 +291,7 @@ class ImageCapture : AppCompatActivity() {
     private fun setupImageUri() {
         val file = File(cacheDir, "captured_image.jpg")
         file.parentFile?.mkdirs()
-        imageUri = FileProvider.getUriForFile(this, "com.example.greenspace.provider", file)
+        imageUri = FileProvider.getUriForFile(this, "com.greenspaceapp.greenspace.provider", file)
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -312,7 +314,7 @@ class ImageCapture : AppCompatActivity() {
         FileOutputStream(file).use {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, it)
         }
-        return FileProvider.getUriForFile(this, "com.example.greenspace.provider", file)
+        return FileProvider.getUriForFile(this, "com.greenspaceapp.greenspace.provider", file)
     }
 
     private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
@@ -332,6 +334,7 @@ class ImageCapture : AppCompatActivity() {
         return file.absolutePath  // Return the local file path
     }
 
+    @OptIn(UnstableApi::class)
     private fun correctImageRotation(uri: Uri): Uri? {
         return try {
             val inputStream = contentResolver.openInputStream(uri)

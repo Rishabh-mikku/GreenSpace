@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:573923425585:android:92f5fdf279a25dd7f78410",
+        "mobilesdk_app_id": "1:573923425585:android:8d794fbb23625b01f78410",
         "android_client_info": {
-          "package_name": "com.example.greenspace"
+          "package_name": "com.greenspaceapp.greenspace"
         }
       },
       "oauth_client": [
         {
-          "client_id": "573923425585-ltqv9nrg60occ0jtuv2grqknn7frp5ne.apps.googleusercontent.com",
+          "client_id": "573923425585-0mdkuitg22kaltdghrok9ti0at0skj82.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.greenspace",
+            "package_name": "com.greenspaceapp.greenspace",
             "certificate_hash": "0737baaff2dff86c8a846b7b9f7c5750900e9e88"
           }
         },
