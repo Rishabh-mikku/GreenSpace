@@ -1,5 +1,3 @@
-Here's a complete `README.md` file for your **GreenSpace** Android project, tailored to everything you’ve shared so far, including features like community gardening, plant identification using LLaVA, shared spaces, Firebase integration, Google Maps, and AWS for storage.
-
 ---
 
 # 🌱 GreenSpace – Community Gardening & Plant Companion App
